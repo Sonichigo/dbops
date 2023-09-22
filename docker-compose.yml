@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  cockroachdb:
+    image: cockroachdb/cockroach:v23.1.10
+    ports:
+      - "26257:26257" # CockroachDB client port
+#    environment:
+ #     - COCKROACH_USER=animesh      # Replace with your desired username
+  #    - COCKROACH_DB=pssql       # Replace with your desired database name
+   #   - COCKROACH_INSECURE=true 
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: start-single-node --insecure # Insecure mode for development only
+    networks:
+      - keploy-network
+
+networks:
+  keploy-network:
+    external: true

@@ -1,0 +1,39 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-3
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:8080/cockroachdb/read
+        header:
+            Accept: '*/*'
+            Accept-Encoding: gzip, deflate, br
+            Cache-Control: no-cache
+            Host: localhost:8080
+            Postman-Token: 72a65c14-09a0-4234-b82d-463280c00999
+            User-Agent: PostmanRuntime/7.32.1
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Length: "292"
+            Content-Type: text/plain; charset=utf-8
+            Date: Thu, 21 Sep 2023 12:29:43 GMT
+        body: |
+            ID: 901869504107053057, Name: Item 1, Description: Description of Item 1
+            ID: 901870054381092865, Name: Item 1, Description: Description of Item 1
+            ID: 901870219166580737, Name: Item 1, Description: Description of Item 1
+            ID: 901870279229079553, Name: Item 1, Description: Description of Item 1
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+    objects: []
+    assertions:
+        noise:
+            - header.Date
+    created: 1695299384

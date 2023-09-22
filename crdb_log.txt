@@ -1,0 +1,451 @@
+
+       ▓██▓▄
+    ▓▓▓▓██▓█▓▄
+     ████████▓▒
+          ▀▓▓███▄      ▄▄   ▄               ▌
+         ▄▌▌▓▓████▄    ██ ▓█▀  ▄▌▀▄  ▓▓▌▄   ▓█  ▄▌▓▓▌▄ ▌▌   ▓
+       ▓█████████▌▓▓   ██▓█▄  ▓█▄▓▓ ▐█▌  ██ ▓█  █▌  ██  █▌ █▓
+      ▓▓▓▓▀▀▀▀▓▓▓▓▓▓▌  ██  █▓  ▓▌▄▄ ▐█▓▄▓█▀ █▓█ ▀█▄▄█▀   █▓█
+       ▓▌                           ▐█▌                   █▌
+        ▓
+  
+v0.1.0-dev
+
+🐰 Keploy: 2023-09-22T07:01:36Z 	INFO	cmd/test.go:122		{"keploy test and mock path": "/files/keploy", "keploy testReport path": "/files/keploy/testReports"}
+🐰 Keploy: 2023-09-22T07:01:36Z 	DEBUG	cmd/test.go:133	the ports are	{"ports": []}
+🐰 Keploy: 2023-09-22T07:01:39Z 	INFO	hooks/loader.go:748	keploy initialized and probes added to the kernel.
+🐰 Keploy: 2023-09-22T07:01:39Z 	DEBUG	hooks/loader.go:759		{"Keploy Inode number": 4026531836}
+🐰 Keploy: 2023-09-22T07:01:39Z 	DEBUG	hooks/loader.go:279	Sending keploy pid to kernel	{"pid": 22311}
+🐰 Keploy: 2023-09-22T07:01:39Z 	DEBUG	hooks/loader.go:762	Keploy Pid sent successfully...
+🐰 Keploy: 2023-09-22T07:01:39Z 	DEBUG	proxy/proxy.go:277	Java is not installed on the system
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	proxy/proxy.go:388	Running Dns Server in Test mode...
+🐰 Keploy: 2023-09-22T07:01:40Z 	INFO	proxy/proxy.go:389	Keploy has hijacked the DNS resolution mechanism, your application may misbehave in keploy test mode if you have provided wrong domain name in your application code.
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	proxy/proxy.go:448	Proxy IPv4:Port 2886795266:16789
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	proxy/proxy.go:449	Proxy IPV6:Port Addr [0 0 0 1]:16789
+🐰 Keploy: 2023-09-22T07:01:40Z 	INFO	proxy/proxy.go:450	Proxy started at port:16789
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	proxy/proxy.go:571		{"ProxyAddress4": "172.17.0.2"}
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	proxy/proxy.go:574		{"ProxyAddress6": "::1"}
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	proxy/proxy.go:583	Proxy server is listening on :[::]:16789
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	proxy/proxy.go:584	Proxy will accept both ipv4 and ipv6 connections	{"Ipv4": "172.17.0.2", "Ipv6": "::1"}
+🐰 Keploy: 2023-09-22T07:01:40Z 	INFO	proxy/proxy.go:640	starting DNS server at addr :16789
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	test/test.go:77	the session indices are:[test-set-2 test-set-0 test-set-1]
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	test/test.go:110	the testcases for test-set-2 are: [0x400328aa00 0x400328a400 0x400328a800]
+mockPath
+/files/keploy/test-set-2
+mocks
+mockLen
+16
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	test/test.go:118	the config mocks for test-set-2 are: []
+the testcase mocks are: [0x4002738d00 0x4002738e00 0x4002738f00 0x4002739000 0x4002739100 0x4002739300 0x4002739a00 0x4002739b00 0x4002739c00 0x4002739d00 0x4002739e00 0x4002739f00 0x400287c000 0x400287c100 0x400287c300 0x400287c400]
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	test/test.go:122		{"app pid": 0}
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:55	Running user application on Docker	{"Docker env": "docker"}
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:66		{"Parsed container name": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:67		{"Parsed docker network": "keploy-network"}
+🐰 Keploy: 2023-09-22T07:01:40Z 	INFO	hooks/launch.go:155	no error found while running user application container
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:369		{"executing cmd": "/usr/bin/docker run -p 8080:8080 --rm --name crdbApp --network keploy-network crdb"}
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:217	container created for desired app	{"ID": "695e910ee58e517f6e0721c8df5ce30641f0f9ac2453c011198106edf4293cec"}
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+Server is running on :8080...
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 23401}
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:237		{"containerDetails.State.Pid": 23401}
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:240	user container:(crdbApp) found
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:246	the user application container pid: 23401
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:248		{"user inode": 4026532526}
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:253	application inode sent to kernel successfully	{"user inode": 4026532526, "time": 1695366100935700591}
+🐰 Keploy: 2023-09-22T07:01:40Z 	DEBUG	hooks/launch.go:258	Network details of crdbApp container:map[keploy-network:0x40027a7a40]
+🐰 Keploy: 2023-09-22T07:01:41Z 	DEBUG	hooks/launch.go:282	Network Name: keploy-network, New Proxy IP: 172.20.0.5
+
+🐰 Keploy: 2023-09-22T07:01:41Z 	DEBUG	hooks/launch.go:299	New proxy ip:2886991877 & proxy port:16789 sent to kernel
+🐰 Keploy: 2023-09-22T07:01:41Z 	DEBUG	hooks/launch.go:317	the ip of the docker container: 172.20.0.4
+🐰 Keploy: 2023-09-22T07:01:41Z 	DEBUG	hooks/launch.go:319	setting container ip address
+🐰 Keploy: 2023-09-22T07:01:41Z 	DEBUG	hooks/launch.go:321	receiver channel received the ip address	{"containerIp found": "172.20.0.4"}
+🐰 Keploy: 2023-09-22T07:01:41Z 	INFO	hooks/launch.go:350	container & network found and processed successfully	{"time": 1695366101091712633}
+🐰 Keploy: 2023-09-22T07:01:41Z 	DEBUG	hooks/launch.go:354	processDockerEnv executed successfully
+🐰 Keploy: 2023-09-22T07:01:41Z 	INFO	hooks/launch.go:121	User application started successfully
+🐰 Keploy: 2023-09-22T07:01:41Z 	DEBUG	hooks/loader.go:775	getting user ip address...
+🐰 Keploy: 2023-09-22T07:01:41Z 	DEBUG	test/test.go:183	the userip of the user docker container	{"": "172.20.0.4"}
+🐰 Keploy: 2023-09-22T07:01:41Z 	DEBUG	test/test.go:184		{"User Ip": "172.20.0.4"}
+🐰 Keploy: 2023-09-22T07:01:41Z 	INFO	test/test.go:187		{"no of test cases": 3, "test-set": "test-set-2"}
+🐰 Keploy: 2023-09-22T07:01:41Z 	DEBUG	hooks/launch.go:170	exiting from goroutine of docker daemon event listener
+🐰 Keploy: 2023-09-22T07:01:41Z 	DEBUG	test/test.go:188	the delay is 10s
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	test/test.go:208	Before simulating the request	{"Test case": {"version":"api.keploy.io/v1beta2","kind":"Http","name":"test-1","created":1695366025,"updated":0,"captured":0,"http_req":{"method":"POST","proto_major":1,"proto_minor":1,"url":"http://localhost:8080/cockroachdb/create","url_params":null,"header":{"Accept":"*/*","Accept-Encoding":"gzip, deflate, br","Cache-Control":"no-cache","Content-Length":"0","Host":"localhost:8080","Postman-Token":"c824a72a-d990-4ac7-a053-5d26fa85c70f","User-Agent":"PostmanRuntime/7.32.1"},"body":"","body_type":"","binary":"","form":null},"http_resp":{"status_code":200,"header":{"Content-Length":"27","Content-Type":"text/plain; charset=utf-8","Date":"Fri, 22 Sep 2023 07:00:25 GMT"},"body":"Item created in CockroachDB","body_type":"","status_message":"","proto_major":0,"proto_minor":0,"binary":""},"all_keys":null,"grpcResp":{"headers":{"pseudo_headers":null,"ordinary_headers":null},"body":{"compression_flag":0,"message_length":0,"decoded_data":""},"trailers":{"pseudo_headers":null,"ordinary_headers":null}},"grpcReq":{"headers":{"pseudo_headers":null,"ordinary_headers":null},"body":{"compression_flag":0,"message_length":0,"decoded_data":""}},"anchors":null,"noise":["header.Date"],"mocks":null,"type":""}}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	test/test.go:214		{"replaced URL in case of docker env": "http://172.20.0.4:8080/cockroachdb/create"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	test/test.go:216	the url of the testcase: http://172.20.0.4:8080/cockroachdb/create
+🐰 Keploy: 2023-09-22T07:01:51Z 	INFO	pkg/util.go:65	making a http request	{"test case id": "test-1"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	pkg/util.go:77	Sending request to user app:&{POST http://172.20.0.4:8080/cockroachdb/create HTTP/1.1 1 1 map[Accept:[*/*] Accept-Encoding:[gzip  deflate  br] Cache-Control:[no-cache] Content-Length:[0] Host:[localhost:8080] Keploy_test_id:[test-1] Postman-Token:[c824a72a-d990-4ac7-a053-5d26fa85c70f] User-Agent:[PostmanRuntime/7.32.1]] {} 0x3a5fa0 0 [] true 172.20.0.4:8080 map[] map[] <nil> map[]   <nil> <nil> <nil> {{}}}
+postgresql://root@crdb-cockroachdb-1:26257/pssql?sslmode=disable
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:659		{"Source socket info": "172.20.0.4:58762"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:663	Got some Dns queries
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:665		{"Record Type": 1, "Received Query": "crdb-cockroachdb-1."}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:685	failed to resolve dns query hence sending proxy ip4	{"proxy Ip": "172.17.0.2"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:702	Answers[when resolution failed for query:1]:
+[crdb-cockroachdb-1.	3600	IN	A	172.17.0.2]
+
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:709	Answers[after caching it]:
+[crdb-cockroachdb-1.	3600	IN	A	172.17.0.2]
+
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:712	Answers[before appending to msg]:
+[crdb-cockroachdb-1.	3600	IN	A	172.17.0.2]
+
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:714	Answers[After appending to msg]:
+[crdb-cockroachdb-1.	3600	IN	A	172.17.0.2]
+
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:717	dns msg sending back:
+;; opcode: QUERY, status: NOERROR, id: 27182
+;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;crdb-cockroachdb-1.	IN	 A
+
+;; ANSWER SECTION:
+crdb-cockroachdb-1.	3600	IN	A	172.17.0.2
+
+
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:718	dns msg RCODE sending back:
+0
+
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:719	Writing dns info back to the client...
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	connection/tracker.go:101	Got a data event from eBPF	{"Direction": 1, "current event size": 318}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:659		{"Source socket info": "172.20.0.4:58288"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:663	Got some Dns queries
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:665		{"Record Type": 28, "Received Query": "crdb-cockroachdb-1."}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:692	failed to resolve dns query (in docker case) hence sending empty record
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:702	Answers[when resolution failed for query:28]:
+[]
+
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:709	Answers[after caching it]:
+[]
+
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:712	Answers[before appending to msg]:
+[]
+
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:714	Answers[After appending to msg]:
+[]
+
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:717	dns msg sending back:
+;; opcode: QUERY, status: NOERROR, id: 38025
+;; flags: qr aa rd; QUERY: 1, ANSWER: 0, AUTHORITY: 0, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;crdb-cockroachdb-1.	IN	 AAAA
+
+
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:718	dns msg RCODE sending back:
+0
+
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:719	Writing dns info back to the client...
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:836		{"PID in proxy:": 22311}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:837		{"Filtering in Proxy": false}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:844	Inside handleConnection of proxyServer	{"source port": 47404, "Time": 1695366111}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:859		{"DestIp4": 2886795266, "DestPort": 26257, "KernelPid": 23401}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	hooks/loader.go:238	successfully removed entry from redirect proxy map	{"(Key)/SourcePort": 47404}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:905	received buffer	{"size": 95, "buffer": "AAAAXwADAABkYXRhYmFzZQBwc3NxbAB1c2VyAHJvb3QAY2xpZW50X2VuY29kaW5nAFVURjgAZGF0ZXN0eWxlAElTTywgTURZAGV4dHJhX2Zsb2F0X2RpZ2l0cwAyAAA=", "connectionID": 0}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:913	the clientConnId: 0
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	proxy/proxy.go:987	into psql desp mode, before passing	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	postgresParser/utils.go:295	CHANGING TO MD5 for Response	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	postgresParser/postgres_transcoder.go:21	Message Type: %c
+	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1, "messageType": "C"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	postgresParser/postgres_transcoder.go:21	Message Type: %c
+	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1, "messageType": "C"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	postgresParser/postgres_transcoder.go:21	Message Type: %c
+	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1, "messageType": "1"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	postgresParser/postgres_transcoder.go:21	Message Type: %c
+	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1, "messageType": "2"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	postgresParser/postgres_transcoder.go:21	Message Type: %c
+	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1, "messageType": "C"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	postgresParser/postgres_transcoder.go:21	Message Type: %c
+	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1, "messageType": "C"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	postgresParser/utils.go:295	CHANGING TO MD5 for Response	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	postgresParser/postgres_transcoder.go:21	Message Type: %c
+	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1, "messageType": "C"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	postgresParser/postgres_transcoder.go:21	Message Type: %c
+	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1, "messageType": "C"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	postgresParser/postgres_transcoder.go:21	Message Type: %c
+	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1, "messageType": "1"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	postgresParser/postgres_transcoder.go:21	Message Type: %c
+	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1, "messageType": "2"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	postgresParser/postgres_transcoder.go:21	Message Type: %c
+	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1, "messageType": "C"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	postgresParser/postgres_transcoder.go:21	Message Type: %c
+	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1, "messageType": "C"}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	postgresParser/utils.go:295	CHANGING TO MD5 for Response	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1}
+🐰 Keploy: 2023-09-22T07:01:51Z 	DEBUG	postgresParser/postgres_transcoder.go:21	Message Type: %c
+	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1, "messageType": "T"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	postgresParser/postgres_parser.go:244	the timeout for the client read in pg	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1}
+2023/09/22 07:01:52 pq: unexpected password response: 'S'
+🐰 Keploy: 2023-09-22T07:01:52Z 	ERROR	pkg/util.go:89	failed sending testcase request to app	{"error": "Post \"http://172.20.0.4:8080/cockroachdb/create\": EOF"}
+go.keploy.io/server/pkg.SimulateHttp
+	/app/pkg/util.go:89
+go.keploy.io/server/pkg/service/test.(*tester).RunTestSet
+	/app/pkg/service/test/test.go:218
+go.keploy.io/server/pkg/service/test.(*tester).Test
+	/app/pkg/service/test/test.go:82
+go.keploy.io/server/cmd.(*Test).GetCmd.func1
+	/app/cmd/test.go:135
+github.com/spf13/cobra.(*Command).execute
+	/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:940
+github.com/spf13/cobra.(*Command).ExecuteC
+	/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:1068
+github.com/spf13/cobra.(*Command).Execute
+	/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:992
+go.keploy.io/server/cmd.(*Root).execute
+	/app/cmd/root.go:134
+go.keploy.io/server/cmd.Execute
+	/app/cmd/root.go:65
+main.main
+	/app/main.go:70
+runtime.main
+	/usr/local/go/src/runtime/proc.go:267
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	test/test.go:219	After simulating the request	{"test case id": "test-1"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	test/test.go:220	After GetResp of the request	{"test case id": "test-1"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	INFO	test/test.go:223	result	{"testcase id": "test-1", "passed": "false"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	test/test.go:208	Before simulating the request	{"Test case": {"version":"api.keploy.io/v1beta2","kind":"Http","name":"test-2","created":1695366030,"updated":0,"captured":0,"http_req":{"method":"POST","proto_major":1,"proto_minor":1,"url":"http://localhost:8080/cockroachdb/create","url_params":null,"header":{"Accept":"*/*","Accept-Encoding":"gzip, deflate, br","Cache-Control":"no-cache","Content-Length":"0","Host":"localhost:8080","Postman-Token":"86cf77db-96f6-498a-a893-cce06d0259b1","User-Agent":"PostmanRuntime/7.32.1"},"body":"","body_type":"","binary":"","form":null},"http_resp":{"status_code":200,"header":{"Content-Length":"27","Content-Type":"text/plain; charset=utf-8","Date":"Fri, 22 Sep 2023 07:00:30 GMT"},"body":"Item created in CockroachDB","body_type":"","status_message":"","proto_major":0,"proto_minor":0,"binary":""},"all_keys":null,"grpcResp":{"headers":{"pseudo_headers":null,"ordinary_headers":null},"body":{"compression_flag":0,"message_length":0,"decoded_data":""},"trailers":{"pseudo_headers":null,"ordinary_headers":null}},"grpcReq":{"headers":{"pseudo_headers":null,"ordinary_headers":null},"body":{"compression_flag":0,"message_length":0,"decoded_data":""}},"anchors":null,"noise":["header.Date"],"mocks":null,"type":""}}
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	test/test.go:214		{"replaced URL in case of docker env": "http://172.20.0.4:8080/cockroachdb/create"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	test/test.go:216	the url of the testcase: http://172.20.0.4:8080/cockroachdb/create
+🐰 Keploy: 2023-09-22T07:01:52Z 	INFO	pkg/util.go:65	making a http request	{"test case id": "test-2"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	pkg/util.go:77	Sending request to user app:&{POST http://172.20.0.4:8080/cockroachdb/create HTTP/1.1 1 1 map[Accept:[*/*] Accept-Encoding:[gzip  deflate  br] Cache-Control:[no-cache] Content-Length:[0] Host:[localhost:8080] Keploy_test_id:[test-2] Postman-Token:[86cf77db-96f6-498a-a893-cce06d0259b1] User-Agent:[PostmanRuntime/7.32.1]] {} 0x3a5fa0 0 [] true 172.20.0.4:8080 map[] map[] <nil> map[]   <nil> <nil> <nil> {{}}}
+🐰 Keploy: 2023-09-22T07:01:52Z 	ERROR	pkg/util.go:89	failed sending testcase request to app	{"error": "Post \"http://172.20.0.4:8080/cockroachdb/create\": dial tcp 172.20.0.4:8080: connect: connection refused"}
+go.keploy.io/server/pkg.SimulateHttp
+	/app/pkg/util.go:89
+go.keploy.io/server/pkg/service/test.(*tester).RunTestSet
+	/app/pkg/service/test/test.go:218
+go.keploy.io/server/pkg/service/test.(*tester).Test
+	/app/pkg/service/test/test.go:82
+go.keploy.io/server/cmd.(*Test).GetCmd.func1
+	/app/cmd/test.go:135
+github.com/spf13/cobra.(*Command).execute
+	/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:940
+github.com/spf13/cobra.(*Command).ExecuteC
+	/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:1068
+github.com/spf13/cobra.(*Command).Execute
+	/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:992
+go.keploy.io/server/cmd.(*Root).execute
+	/app/cmd/root.go:134
+go.keploy.io/server/cmd.Execute
+	/app/cmd/root.go:65
+main.main
+	/app/main.go:70
+runtime.main
+	/usr/local/go/src/runtime/proc.go:267
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	test/test.go:219	After simulating the request	{"test case id": "test-2"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	test/test.go:220	After GetResp of the request	{"test case id": "test-2"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	INFO	test/test.go:223	result	{"testcase id": "test-2", "passed": "false"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	test/test.go:208	Before simulating the request	{"Test case": {"version":"api.keploy.io/v1beta2","kind":"Http","name":"test-3","created":1695366039,"updated":0,"captured":0,"http_req":{"method":"GET","proto_major":1,"proto_minor":1,"url":"http://localhost:8080/cockroachdb/read","url_params":null,"header":{"Accept":"*/*","Accept-Encoding":"gzip, deflate, br","Cache-Control":"no-cache","Host":"localhost:8080","Postman-Token":"c76416f4-e70f-43be-98d1-0317d7bb82bf","User-Agent":"PostmanRuntime/7.32.1"},"body":"","body_type":"","binary":"","form":null},"http_resp":{"status_code":200,"header":{"Content-Length":"438","Content-Type":"text/plain; charset=utf-8","Date":"Fri, 22 Sep 2023 07:00:39 GMT"},"body":"ID: 901869504107053057, Name: Item 1, Description: Description of Item 1\nID: 901870054381092865, Name: Item 1, Description: Description of Item 1\nID: 901870219166580737, Name: Item 1, Description: Description of Item 1\nID: 901870279229079553, Name: Item 1, Description: Description of Item 1\nID: 902088705618673665, Name: Item 1, Description: Description of Item 1\nID: 902088723088015361, Name: Item 1, Description: Description of Item 1\n","body_type":"","status_message":"","proto_major":0,"proto_minor":0,"binary":""},"all_keys":null,"grpcResp":{"headers":{"pseudo_headers":null,"ordinary_headers":null},"body":{"compression_flag":0,"message_length":0,"decoded_data":""},"trailers":{"pseudo_headers":null,"ordinary_headers":null}},"grpcReq":{"headers":{"pseudo_headers":null,"ordinary_headers":null},"body":{"compression_flag":0,"message_length":0,"decoded_data":""}},"anchors":null,"noise":["header.Date"],"mocks":null,"type":""}}
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	test/test.go:214		{"replaced URL in case of docker env": "http://172.20.0.4:8080/cockroachdb/read"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	test/test.go:216	the url of the testcase: http://172.20.0.4:8080/cockroachdb/read
+🐰 Keploy: 2023-09-22T07:01:52Z 	INFO	pkg/util.go:65	making a http request	{"test case id": "test-3"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	pkg/util.go:77	Sending request to user app:&{GET http://172.20.0.4:8080/cockroachdb/read HTTP/1.1 1 1 map[Accept:[*/*] Accept-Encoding:[gzip  deflate  br] Cache-Control:[no-cache] Host:[localhost:8080] Keploy_test_id:[test-3] Postman-Token:[c76416f4-e70f-43be-98d1-0317d7bb82bf] User-Agent:[PostmanRuntime/7.32.1]] {} 0x3a5fa0 0 [] true 172.20.0.4:8080 map[] map[] <nil> map[]   <nil> <nil> <nil> {{}}}
+🐰 Keploy: 2023-09-22T07:01:52Z 	ERROR	pkg/util.go:89	failed sending testcase request to app	{"error": "Get \"http://172.20.0.4:8080/cockroachdb/read\": dial tcp 172.20.0.4:8080: connect: connection refused"}
+go.keploy.io/server/pkg.SimulateHttp
+	/app/pkg/util.go:89
+go.keploy.io/server/pkg/service/test.(*tester).RunTestSet
+	/app/pkg/service/test/test.go:218
+go.keploy.io/server/pkg/service/test.(*tester).Test
+	/app/pkg/service/test/test.go:82
+go.keploy.io/server/cmd.(*Test).GetCmd.func1
+	/app/cmd/test.go:135
+github.com/spf13/cobra.(*Command).execute
+	/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:940
+github.com/spf13/cobra.(*Command).ExecuteC
+	/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:1068
+github.com/spf13/cobra.(*Command).Execute
+	/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:992
+go.keploy.io/server/cmd.(*Root).execute
+	/app/cmd/root.go:134
+go.keploy.io/server/cmd.Execute
+	/app/cmd/root.go:65
+main.main
+	/app/main.go:70
+runtime.main
+	/usr/local/go/src/runtime/proc.go:267
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	test/test.go:219	After simulating the request	{"test case id": "test-3"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	test/test.go:220	After GetResp of the request	{"test case id": "test-3"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	INFO	test/test.go:223	result	{"testcase id": "test-3", "passed": "false"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	ERROR	test/test.go:309	failed to fetch test results	{"error": "🐰 Keploy:%!(EXTRA string=found no test results for test report with id: %v, string=report-2)"}
+go.keploy.io/server/pkg/service/test.(*tester).RunTestSet
+	/app/pkg/service/test/test.go:309
+go.keploy.io/server/pkg/service/test.(*tester).Test
+	/app/pkg/service/test/test.go:82
+go.keploy.io/server/cmd.(*Test).GetCmd.func1
+	/app/cmd/test.go:135
+github.com/spf13/cobra.(*Command).execute
+	/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:940
+github.com/spf13/cobra.(*Command).ExecuteC
+	/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:1068
+github.com/spf13/cobra.(*Command).Execute
+	/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:992
+go.keploy.io/server/cmd.(*Root).execute
+	/app/cmd/root.go:134
+go.keploy.io/server/cmd.Execute
+	/app/cmd/root.go:65
+main.main
+	/app/main.go:70
+runtime.main
+	/usr/local/go/src/runtime/proc.go:267
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	test/test.go:110	the testcases for test-set-0 are: [0x400328ac00 0x400328a000 0x400328a200]
+mockPath
+/files/keploy/test-set-0
+mocks
+mockLen
+16
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	test/test.go:118	the config mocks for test-set-0 are: []
+the testcase mocks are: [0x4002bcd900 0x4002bcda00 0x4002bcdb00 0x4002bcdc00 0x4002bcdd00 0x4002bcde00 0x4002bcdf00 0x4002738600 0x4002738700 0x4002738800 0x4002738900 0x4002739200 0x4002739400 0x4002739500 0x4002739600 0x4002739700]
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	test/test.go:122		{"app pid": 0}
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	hooks/launch.go:55	Running user application on Docker	{"Docker env": "docker"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	hooks/launch.go:66		{"Parsed container name": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	hooks/launch.go:67		{"Parsed docker network": "keploy-network"}
+🐰 Keploy: 2023-09-22T07:01:52Z 	INFO	hooks/launch.go:155	no error found while running user application container
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	hooks/launch.go:369		{"executing cmd": "/usr/bin/docker run -p 8080:8080 --rm --name crdbApp --network keploy-network crdb"}
+docker: Error response from daemon: Conflict. The container name "/crdbApp" is already in use by container "695e910ee58e517f6e0721c8df5ce30641f0f9ac2453c011198106edf4293cec". You have to remove (or rename) that container to be able to reuse that name.
+See 'docker run --help'.
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	postgresParser/postgres_parser.go:235	EOF error received from client. Closing connection in postgres !!	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1}
+🐰 Keploy: 2023-09-22T07:01:52Z 	DEBUG	proxy/proxy.go:999	time taken by proxy to execute the flow	{"Client IP Address": "172.20.0.4:47404", "Client ConnectionID": 0, "Destination IP Address": "172.17.0.2:26257", "Destination ConnectionID": 1, "Duration(ms)": 1416}
+🐰 Keploy: 2023-09-22T07:01:53Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:01:54Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:01:55Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:01:56Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:01:57Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:01:58Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:01:59Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:00Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:01Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:02Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:03Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:04Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:05Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:06Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:07Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:08Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:09Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:10Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:11Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:12Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:13Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:14Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:15Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:16Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:17Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:18Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:19Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:20Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:21Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:22Z 	INFO	hooks/launch.go:201	still waiting for the container to start.	{"containerName": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:170	exiting from goroutine of docker daemon event listener
+🐰 Keploy: 2023-09-22T07:02:22Z 	ERROR	hooks/launch.go:346	failed to process the user application container or network	{"err": "no container found for :crdbApp"}
+go.keploy.io/server/pkg/hooks.(*Hook).processDockerEnv
+	/app/pkg/hooks/launch.go:346
+go.keploy.io/server/pkg/hooks.(*Hook).LaunchUserApplication
+	/app/pkg/hooks/launch.go:85
+go.keploy.io/server/pkg/service/test.(*tester).RunTestSet
+	/app/pkg/service/test/test.go:127
+go.keploy.io/server/pkg/service/test.(*tester).Test
+	/app/pkg/service/test/test.go:82
+go.keploy.io/server/cmd.(*Test).GetCmd.func1
+	/app/cmd/test.go:135
+github.com/spf13/cobra.(*Command).execute
+	/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:940
+github.com/spf13/cobra.(*Command).ExecuteC
+	/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:1068
+github.com/spf13/cobra.(*Command).Execute
+	/go/pkg/mod/github.com/spf13/cobra@v1.7.0/command.go:992
+go.keploy.io/server/cmd.(*Root).execute
+	/app/cmd/root.go:134
+go.keploy.io/server/cmd.Execute
+	/app/cmd/root.go:65
+main.main
+	/app/main.go:70
+runtime.main
+	/usr/local/go/src/runtime/proc.go:267
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	test/test.go:128	failed to process the user application
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	test/test.go:110	the testcases for test-set-1 are: [0x40001dc200]
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	test/test.go:118	the config mocks for test-set-1 are: []
+the testcase mocks are: []
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	test/test.go:122		{"app pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:55	Running user application on Docker	{"Docker env": "docker"}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:66		{"Parsed container name": "crdbApp"}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:67		{"Parsed docker network": "keploy-network"}
+🐰 Keploy: 2023-09-22T07:02:22Z 	INFO	hooks/launch.go:155	no error found while running user application container
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:369		{"executing cmd": "/usr/bin/docker run -p 8080:8080 --rm --name crdbApp --network keploy-network crdb"}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:217	container created for desired app	{"ID": "64b0695fcec8c7e3ea632373afa915451050709b96bb35f003b41743a95d354f"}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 0}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:235	checking for container pid	{"containerDetails.State.Pid": 23598}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:237		{"containerDetails.State.Pid": 23598}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:240	user container:(crdbApp) found
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:246	the user application container pid: 23598
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:248		{"user inode": 4026532526}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:253	application inode sent to kernel successfully	{"user inode": 4026532526, "time": 1695366142654457986}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:258	Network details of crdbApp container:map[keploy-network:0x4002d8c3c0]
+Server is running on :8080...
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:282	Network Name: keploy-network, New Proxy IP: 172.20.0.5
+
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:299	New proxy ip:2886991877 & proxy port:16789 sent to kernel
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:317	the ip of the docker container: 172.20.0.4
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:319	setting container ip address
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:321	receiver channel received the ip address	{"containerIp found": "172.20.0.4"}
+🐰 Keploy: 2023-09-22T07:02:22Z 	INFO	hooks/launch.go:350	container & network found and processed successfully	{"time": 1695366142655788194}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:354	processDockerEnv executed successfully
+🐰 Keploy: 2023-09-22T07:02:22Z 	INFO	hooks/launch.go:121	User application started successfully
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/loader.go:775	getting user ip address...
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	test/test.go:183	the userip of the user docker container	{"": "172.20.0.4"}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	test/test.go:184		{"User Ip": "172.20.0.4"}
+🐰 Keploy: 2023-09-22T07:02:22Z 	INFO	test/test.go:187		{"no of test cases": 1, "test-set": "test-set-1"}
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	test/test.go:188	the delay is 10s
+🐰 Keploy: 2023-09-22T07:02:22Z 	DEBUG	hooks/launch.go:170	exiting from goroutine of docker daemon event listener
+🐰 Keploy: 2023-09-22T07:02:32Z 	DEBUG	test/test.go:208	Before simulating the request	{"Test case": {"version":"api.keploy.io/v1beta2","kind":"Http","name":"test-1","created":1695365962,"updated":0,"captured":0,"http_req":{"method":"POST","proto_major":1,"proto_minor":1,"url":"http://localhost:8080/postgresdb/create","url_params":null,"header":{"Accept":"*/*","Accept-Encoding":"gzip, deflate, br","Cache-Control":"no-cache","Content-Length":"0","Host":"localhost:8080","Postman-Token":"e707b07b-8147-4920-a0ee-28426e761552","User-Agent":"PostmanRuntime/7.32.1"},"body":"","body_type":"","binary":"","form":null},"http_resp":{"status_code":404,"header":{"Content-Length":"19","Content-Type":"text/plain; charset=utf-8","Date":"Fri, 22 Sep 2023 06:59:22 GMT","X-Content-Type-Options":"nosniff"},"body":"404 page not found\n","body_type":"","status_message":"","proto_major":0,"proto_minor":0,"binary":""},"all_keys":null,"grpcResp":{"headers":{"pseudo_headers":null,"ordinary_headers":null},"body":{"compression_flag":0,"message_length":0,"decoded_data":""},"trailers":{"pseudo_headers":null,"ordinary_headers":null}},"grpcReq":{"headers":{"pseudo_headers":null,"ordinary_headers":null},"body":{"compression_flag":0,"message_length":0,"decoded_data":""}},"anchors":null,"noise":["header.Date"],"mocks":null,"type":""}}
+🐰 Keploy: 2023-09-22T07:02:32Z 	DEBUG	test/test.go:214		{"replaced URL in case of docker env": "http://172.20.0.4:8080/postgresdb/create"}
+🐰 Keploy: 2023-09-22T07:02:32Z 	DEBUG	test/test.go:216	the url of the testcase: http://172.20.0.4:8080/postgresdb/create
+🐰 Keploy: 2023-09-22T07:02:32Z 	INFO	pkg/util.go:65	making a http request	{"test case id": "test-1"}
+🐰 Keploy: 2023-09-22T07:02:32Z 	DEBUG	pkg/util.go:77	Sending request to user app:&{POST http://172.20.0.4:8080/postgresdb/create HTTP/1.1 1 1 map[Accept:[*/*] Accept-Encoding:[gzip  deflate  br] Cache-Control:[no-cache] Content-Length:[0] Host:[localhost:8080] Keploy_test_id:[test-1] Postman-Token:[e707b07b-8147-4920-a0ee-28426e761552] User-Agent:[PostmanRuntime/7.32.1]] {} 0x3a5fa0 0 [] true 172.20.0.4:8080 map[] map[] <nil> map[]   <nil> <nil> <nil> {{}}}
+🐰 Keploy: 2023-09-22T07:02:32Z 	DEBUG	test/test.go:219	After simulating the request	{"test case id": "test-1"}
+🐰 Keploy: 2023-09-22T07:02:32Z 	DEBUG	test/test.go:220	After GetResp of the request	{"test case id": "test-1"}
+🐰 Keploy: 2023-09-22T07:02:32Z 	DEBUG	connection/tracker.go:101	Got a data event from eBPF	{"Direction": 1, "current event size": 317}
+Testrun passed for testcase with id: [32m[1m"[0m[32mtest-1[0m[32m[1m"[0m
+
+--------------------------------------------------------------------
+
+🐰 Keploy: 2023-09-22T07:02:32Z 	INFO	test/test.go:232	result	{"testcase id": "test-1", "passed": true}
+🐰 Keploy: 2023-09-22T07:02:32Z 	DEBUG	connection/tracker.go:101	Got a data event from eBPF	{"Direction": 0, "current event size": 195}
+🐰 Keploy: 2023-09-22T07:02:32Z 	DEBUG	connection/tracker.go:136	Got a close event from eBPF	{"TotalReadBytes": 317, "TotalWrittenBytes": 195}
+🐰 Keploy: 2023-09-22T07:02:32Z 	DEBUG	test/test.go:323	the result before	{"": true, "testreport name": "report-3"}
+🐰 Keploy: 2023-09-22T07:02:32Z 	DEBUG	test/test.go:325	the result after	{"": true, "testreport name": "report-3"}
+🐰 Keploy: 2023-09-22T07:02:32Z 	INFO	test/test.go:85	test run completed	{"passed overall": false}
+🐰 Keploy: 2023-09-22T07:02:32Z 	INFO	hooks/loader.go:365	Exiting keploy program gracefully.
+🐰 Keploy: 2023-09-22T07:02:32Z 	ERROR	hooks/ringBufReader.go:104	failed to receive signal from ringbuf socketDataEvent reader	{"error": "epoll wait: file already closed"}
+go.keploy.io/server/pkg/hooks.socketDataEventCallback
+	/app/pkg/hooks/ringBufReader.go:104
+go.keploy.io/server/pkg/hooks.(*Hook).launchSocketDataEvent.func1
+	/app/pkg/hooks/ringBufReader.go:70
+🐰 Keploy: 2023-09-22T07:02:33Z 	DEBUG	connection/factory.go:68	skipping tracker in test mode
+🐰 Keploy: 2023-09-22T07:02:33Z 	INFO	hooks/loader.go:414	eBPF resources released successfully...
+🐰 Keploy: 2023-09-22T07:02:33Z 	ERROR	proxy/proxy.go:596	failed to accept connection to the proxy	{"error": "accept tcp [::]:16789: use of closed network connection"}
+go.keploy.io/server/pkg/proxy.(*ProxySet).startProxy
+	/app/pkg/proxy/proxy.go:596
+go.keploy.io/server/pkg/proxy.BootProxy.func1
+	/app/pkg/proxy/proxy.go:384
+🐰 Keploy: 2023-09-22T07:02:33Z 	INFO	proxy/proxy.go:1079	Dns server stopped
+🐰 Keploy: 2023-09-22T07:02:33Z 	INFO	proxy/proxy.go:1081	proxy stopped...

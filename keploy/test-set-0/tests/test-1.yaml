@@ -1,0 +1,35 @@
+version: api.keploy.io/v1beta2
+kind: Http
+name: test-1
+spec:
+    metadata: {}
+    req:
+        method: GET
+        proto_major: 1
+        proto_minor: 1
+        url: http://localhost:8080/cockroachdb/create
+        header:
+            Accept: '*/*'
+            Accept-Encoding: gzip, deflate, br
+            Cache-Control: no-cache
+            Host: localhost:8080
+            Postman-Token: f6ec43fb-2cee-4b60-a586-da34fe8a2d16
+            User-Agent: PostmanRuntime/7.32.1
+        body: ""
+        body_type: ""
+    resp:
+        status_code: 200
+        header:
+            Content-Length: "27"
+            Content-Type: text/plain; charset=utf-8
+            Date: Thu, 21 Sep 2023 12:29:08 GMT
+        body: Item created in CockroachDB
+        body_type: ""
+        status_message: ""
+        proto_major: 0
+        proto_minor: 0
+    objects: []
+    assertions:
+        noise:
+            - header.Date
+    created: 1695299349
