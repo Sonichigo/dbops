@@ -1,0 +1,1184 @@
+{
+    "version": "api.keploy.io/v1beta1",
+    "name": "test-set-1-report",
+    "status": "PASSED",
+    "success": 7,
+    "failure": 0,
+    "ignored": 0,
+    "total": 7,
+    "tests": [
+        {
+            "kind": "Http",
+            "name": "test-set-1",
+            "status": "PASSED",
+            "started": 1726132581,
+            "completed": 1726132581,
+            "test_case_path": "/Users/sonichigo/GitHub/samples-typescript/express-mongoose/keploy/test-set-1",
+            "mock_path": "/Users/sonichigo/GitHub/samples-typescript/express-mongoose/keploy/test-set-1/mocks.yaml",
+            "test_case_id": "test-1",
+            "req": {
+                "method": "GET",
+                "proto_major": 1,
+                "proto_minor": 1,
+                "url": "http://172.18.0.4:8000/student?name=John&email=john@example.com",
+                "url_params": {
+                    "email": "john@example.com",
+                    "name": "John"
+                },
+                "header": {
+                    "Accept": "*/*",
+                    "Host": "localhost:8000",
+                    "User-Agent": "curl/8.7.1"
+                },
+                "body": "",
+                "timestamp": "2024-09-09T13:03:50.510Z"
+            },
+            "resp": {
+                "status_code": 200,
+                "header": {
+                    "Connection": "keep-alive",
+                    "Content-Length": "2",
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Date": "Thu, 12 Sep 2024 09:16:21 GMT",
+                    "Etag": "W/\"2-l9Fw4VUO7kr8CvBlt4zaMCqXZ0w\"",
+                    "Keep-Alive": "timeout=5",
+                    "X-Powered-By": "Express"
+                },
+                "body": "[]",
+                "status_message": "",
+                "proto_major": 0,
+                "proto_minor": 0,
+                "timestamp": "1901-01-01T00:00:00.000Z"
+            },
+            "noise": {
+                "header.Date": []
+            },
+            "result": {
+                "status_code": {
+                    "normal": true,
+                    "expected": 200,
+                    "actual": 200
+                },
+                "headers_result": [
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Connection",
+                            "value": [
+                                "keep-alive"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Connection",
+                            "value": [
+                                "keep-alive"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Content-Length",
+                            "value": [
+                                "2"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Content-Length",
+                            "value": [
+                                "2"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Content-Type",
+                            "value": [
+                                "application/json; charset=utf-8"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Content-Type",
+                            "value": [
+                                "application/json; charset=utf-8"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Date",
+                            "value": [
+                                "Mon, 09 Sep 2024 13:03:50 GMT"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Date",
+                            "value": [
+                                "Thu, 12 Sep 2024 09:16:21 GMT"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Etag",
+                            "value": [
+                                "W/\"2-l9Fw4VUO7kr8CvBlt4zaMCqXZ0w\""
+                            ]
+                        },
+                        "actual": {
+                            "key": "Etag",
+                            "value": [
+                                "W/\"2-l9Fw4VUO7kr8CvBlt4zaMCqXZ0w\""
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Keep-Alive",
+                            "value": [
+                                "timeout=5"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Keep-Alive",
+                            "value": [
+                                "timeout=5"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "X-Powered-By",
+                            "value": [
+                                "Express"
+                            ]
+                        },
+                        "actual": {
+                            "key": "X-Powered-By",
+                            "value": [
+                                "Express"
+                            ]
+                        }
+                    }
+                ],
+                "body_result": [
+                    {
+                        "normal": true,
+                        "type": "JSON",
+                        "expected": "[]",
+                        "actual": "[]"
+                    }
+                ],
+                "dep_result": []
+            }
+        },
+        {
+            "kind": "Http",
+            "name": "test-set-1",
+            "status": "PASSED",
+            "started": 1726132581,
+            "completed": 1726132581,
+            "test_case_path": "/Users/sonichigo/GitHub/samples-typescript/express-mongoose/keploy/test-set-1",
+            "mock_path": "/Users/sonichigo/GitHub/samples-typescript/express-mongoose/keploy/test-set-1/mocks.yaml",
+            "test_case_id": "test-2",
+            "req": {
+                "method": "GET",
+                "proto_major": 1,
+                "proto_minor": 1,
+                "url": "http://172.18.0.4:8000/student/John",
+                "header": {
+                    "Accept": "*/*",
+                    "Host": "localhost:8000",
+                    "User-Agent": "curl/8.7.1"
+                },
+                "body": "",
+                "timestamp": "2024-09-09T13:03:50.545Z"
+            },
+            "resp": {
+                "status_code": 200,
+                "header": {
+                    "Connection": "keep-alive",
+                    "Content-Length": "2",
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Date": "Thu, 12 Sep 2024 09:16:21 GMT",
+                    "Etag": "W/\"2-l9Fw4VUO7kr8CvBlt4zaMCqXZ0w\"",
+                    "Keep-Alive": "timeout=5",
+                    "X-Powered-By": "Express"
+                },
+                "body": "[]",
+                "status_message": "",
+                "proto_major": 0,
+                "proto_minor": 0,
+                "timestamp": "1901-01-01T00:00:00.000Z"
+            },
+            "noise": {
+                "header.Date": []
+            },
+            "result": {
+                "status_code": {
+                    "normal": true,
+                    "expected": 200,
+                    "actual": 200
+                },
+                "headers_result": [
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Connection",
+                            "value": [
+                                "keep-alive"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Connection",
+                            "value": [
+                                "keep-alive"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Content-Length",
+                            "value": [
+                                "2"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Content-Length",
+                            "value": [
+                                "2"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Content-Type",
+                            "value": [
+                                "application/json; charset=utf-8"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Content-Type",
+                            "value": [
+                                "application/json; charset=utf-8"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Date",
+                            "value": [
+                                "Mon, 09 Sep 2024 13:03:50 GMT"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Date",
+                            "value": [
+                                "Thu, 12 Sep 2024 09:16:21 GMT"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Etag",
+                            "value": [
+                                "W/\"2-l9Fw4VUO7kr8CvBlt4zaMCqXZ0w\""
+                            ]
+                        },
+                        "actual": {
+                            "key": "Etag",
+                            "value": [
+                                "W/\"2-l9Fw4VUO7kr8CvBlt4zaMCqXZ0w\""
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Keep-Alive",
+                            "value": [
+                                "timeout=5"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Keep-Alive",
+                            "value": [
+                                "timeout=5"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "X-Powered-By",
+                            "value": [
+                                "Express"
+                            ]
+                        },
+                        "actual": {
+                            "key": "X-Powered-By",
+                            "value": [
+                                "Express"
+                            ]
+                        }
+                    }
+                ],
+                "body_result": [
+                    {
+                        "normal": true,
+                        "type": "JSON",
+                        "expected": "[]",
+                        "actual": "[]"
+                    }
+                ],
+                "dep_result": []
+            }
+        },
+        {
+            "kind": "Http",
+            "name": "test-set-1",
+            "status": "PASSED",
+            "started": 1726132581,
+            "completed": 1726132581,
+            "test_case_path": "/Users/sonichigo/GitHub/samples-typescript/express-mongoose/keploy/test-set-1",
+            "mock_path": "/Users/sonichigo/GitHub/samples-typescript/express-mongoose/keploy/test-set-1/mocks.yaml",
+            "test_case_id": "test-3",
+            "req": {
+                "method": "POST",
+                "proto_major": 1,
+                "proto_minor": 1,
+                "url": "http://172.18.0.4:8000/students",
+                "header": {
+                    "Accept": "*/*",
+                    "Content-Length": "69",
+                    "Content-Type": "application/json",
+                    "Host": "localhost:8000",
+                    "User-Agent": "curl/8.7.1"
+                },
+                "body": "{\"name\": \"John Doe\", \"email\": \"john@example.com\", \"phone\": 123456789}",
+                "timestamp": "2024-09-09T13:03:50.559Z"
+            },
+            "resp": {
+                "status_code": 201,
+                "header": {
+                    "Connection": "keep-alive",
+                    "Content-Length": "32",
+                    "Content-Type": "text/html; charset=utf-8",
+                    "Date": "Thu, 12 Sep 2024 09:16:21 GMT",
+                    "Etag": "W/\"20-eRnsw5wzaHLQ7mrcxkJtVBiy7Xg\"",
+                    "Keep-Alive": "timeout=5",
+                    "X-Powered-By": "Express"
+                },
+                "body": "Student registration successful!",
+                "status_message": "",
+                "proto_major": 0,
+                "proto_minor": 0,
+                "timestamp": "1901-01-01T00:00:00.000Z"
+            },
+            "noise": {
+                "header.Date": []
+            },
+            "result": {
+                "status_code": {
+                    "normal": true,
+                    "expected": 201,
+                    "actual": 201
+                },
+                "headers_result": [
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Date",
+                            "value": [
+                                "Mon, 09 Sep 2024 13:03:50 GMT"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Date",
+                            "value": [
+                                "Thu, 12 Sep 2024 09:16:21 GMT"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Etag",
+                            "value": [
+                                "W/\"20-eRnsw5wzaHLQ7mrcxkJtVBiy7Xg\""
+                            ]
+                        },
+                        "actual": {
+                            "key": "Etag",
+                            "value": [
+                                "W/\"20-eRnsw5wzaHLQ7mrcxkJtVBiy7Xg\""
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Keep-Alive",
+                            "value": [
+                                "timeout=5"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Keep-Alive",
+                            "value": [
+                                "timeout=5"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "X-Powered-By",
+                            "value": [
+                                "Express"
+                            ]
+                        },
+                        "actual": {
+                            "key": "X-Powered-By",
+                            "value": [
+                                "Express"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Connection",
+                            "value": [
+                                "keep-alive"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Connection",
+                            "value": [
+                                "keep-alive"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Content-Length",
+                            "value": [
+                                "32"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Content-Length",
+                            "value": [
+                                "32"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Content-Type",
+                            "value": [
+                                "text/html; charset=utf-8"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Content-Type",
+                            "value": [
+                                "text/html; charset=utf-8"
+                            ]
+                        }
+                    }
+                ],
+                "body_result": [
+                    {
+                        "normal": true,
+                        "type": "PLAIN",
+                        "expected": "Student registration successful!",
+                        "actual": "Student registration successful!"
+                    }
+                ],
+                "dep_result": []
+            }
+        },
+        {
+            "kind": "Http",
+            "name": "test-set-1",
+            "status": "PASSED",
+            "started": 1726132581,
+            "completed": 1726132581,
+            "test_case_path": "/Users/sonichigo/GitHub/samples-typescript/express-mongoose/keploy/test-set-1",
+            "mock_path": "/Users/sonichigo/GitHub/samples-typescript/express-mongoose/keploy/test-set-1/mocks.yaml",
+            "test_case_id": "test-4",
+            "req": {
+                "method": "POST",
+                "proto_major": 1,
+                "proto_minor": 1,
+                "url": "http://172.18.0.4:8000/students",
+                "header": {
+                    "Accept": "*/*",
+                    "Content-Length": "69",
+                    "Content-Type": "application/json",
+                    "Host": "localhost:8000",
+                    "User-Agent": "curl/7.88.1"
+                },
+                "body": "{\"name\":\"Alice Green\",\"email\":\"green@alice.com\",\"phone\":\"3939201584\"}",
+                "timestamp": "2024-09-09T13:03:50.591Z"
+            },
+            "resp": {
+                "status_code": 201,
+                "header": {
+                    "Connection": "keep-alive",
+                    "Content-Length": "32",
+                    "Content-Type": "text/html; charset=utf-8",
+                    "Date": "Thu, 12 Sep 2024 09:16:21 GMT",
+                    "Etag": "W/\"20-eRnsw5wzaHLQ7mrcxkJtVBiy7Xg\"",
+                    "Keep-Alive": "timeout=5",
+                    "X-Powered-By": "Express"
+                },
+                "body": "Student registration successful!",
+                "status_message": "",
+                "proto_major": 0,
+                "proto_minor": 0,
+                "timestamp": "1901-01-01T00:00:00.000Z"
+            },
+            "noise": {
+                "header.Date": []
+            },
+            "result": {
+                "status_code": {
+                    "normal": true,
+                    "expected": 201,
+                    "actual": 201
+                },
+                "headers_result": [
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Content-Type",
+                            "value": [
+                                "text/html; charset=utf-8"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Content-Type",
+                            "value": [
+                                "text/html; charset=utf-8"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Date",
+                            "value": [
+                                "Mon, 09 Sep 2024 13:03:50 GMT"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Date",
+                            "value": [
+                                "Thu, 12 Sep 2024 09:16:21 GMT"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Etag",
+                            "value": [
+                                "W/\"20-eRnsw5wzaHLQ7mrcxkJtVBiy7Xg\""
+                            ]
+                        },
+                        "actual": {
+                            "key": "Etag",
+                            "value": [
+                                "W/\"20-eRnsw5wzaHLQ7mrcxkJtVBiy7Xg\""
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Keep-Alive",
+                            "value": [
+                                "timeout=5"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Keep-Alive",
+                            "value": [
+                                "timeout=5"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "X-Powered-By",
+                            "value": [
+                                "Express"
+                            ]
+                        },
+                        "actual": {
+                            "key": "X-Powered-By",
+                            "value": [
+                                "Express"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Connection",
+                            "value": [
+                                "keep-alive"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Connection",
+                            "value": [
+                                "keep-alive"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Content-Length",
+                            "value": [
+                                "32"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Content-Length",
+                            "value": [
+                                "32"
+                            ]
+                        }
+                    }
+                ],
+                "body_result": [
+                    {
+                        "normal": true,
+                        "type": "PLAIN",
+                        "expected": "Student registration successful!",
+                        "actual": "Student registration successful!"
+                    }
+                ],
+                "dep_result": []
+            }
+        },
+        {
+            "kind": "Http",
+            "name": "test-set-1",
+            "status": "PASSED",
+            "started": 1726132581,
+            "completed": 1726132581,
+            "test_case_path": "/Users/sonichigo/GitHub/samples-typescript/express-mongoose/keploy/test-set-1",
+            "mock_path": "/Users/sonichigo/GitHub/samples-typescript/express-mongoose/keploy/test-set-1/mocks.yaml",
+            "test_case_id": "test-5",
+            "req": {
+                "method": "POST",
+                "proto_major": 1,
+                "proto_minor": 1,
+                "url": "http://172.18.0.4:8000/students",
+                "header": {
+                    "Accept": "*/*",
+                    "Content-Length": "99",
+                    "Content-Type": "application/json",
+                    "Host": "localhost:8000",
+                    "User-Agent": "curl/7.88.1"
+                },
+                "body": "{\n        \"name\":\"John Do\",\n        \"email\":\"john@xyiz.com\",\n        \"phone\":\"0123456799\"\n        }",
+                "timestamp": "2024-09-09T13:03:50.605Z"
+            },
+            "resp": {
+                "status_code": 201,
+                "header": {
+                    "Connection": "keep-alive",
+                    "Content-Length": "32",
+                    "Content-Type": "text/html; charset=utf-8",
+                    "Date": "Thu, 12 Sep 2024 09:16:21 GMT",
+                    "Etag": "W/\"20-eRnsw5wzaHLQ7mrcxkJtVBiy7Xg\"",
+                    "Keep-Alive": "timeout=5",
+                    "X-Powered-By": "Express"
+                },
+                "body": "Student registration successful!",
+                "status_message": "",
+                "proto_major": 0,
+                "proto_minor": 0,
+                "timestamp": "1901-01-01T00:00:00.000Z"
+            },
+            "noise": {
+                "header.Date": []
+            },
+            "result": {
+                "status_code": {
+                    "normal": true,
+                    "expected": 201,
+                    "actual": 201
+                },
+                "headers_result": [
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Connection",
+                            "value": [
+                                "keep-alive"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Connection",
+                            "value": [
+                                "keep-alive"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Content-Length",
+                            "value": [
+                                "32"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Content-Length",
+                            "value": [
+                                "32"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Content-Type",
+                            "value": [
+                                "text/html; charset=utf-8"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Content-Type",
+                            "value": [
+                                "text/html; charset=utf-8"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Date",
+                            "value": [
+                                "Mon, 09 Sep 2024 13:03:50 GMT"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Date",
+                            "value": [
+                                "Thu, 12 Sep 2024 09:16:21 GMT"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Etag",
+                            "value": [
+                                "W/\"20-eRnsw5wzaHLQ7mrcxkJtVBiy7Xg\""
+                            ]
+                        },
+                        "actual": {
+                            "key": "Etag",
+                            "value": [
+                                "W/\"20-eRnsw5wzaHLQ7mrcxkJtVBiy7Xg\""
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Keep-Alive",
+                            "value": [
+                                "timeout=5"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Keep-Alive",
+                            "value": [
+                                "timeout=5"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "X-Powered-By",
+                            "value": [
+                                "Express"
+                            ]
+                        },
+                        "actual": {
+                            "key": "X-Powered-By",
+                            "value": [
+                                "Express"
+                            ]
+                        }
+                    }
+                ],
+                "body_result": [
+                    {
+                        "normal": true,
+                        "type": "PLAIN",
+                        "expected": "Student registration successful!",
+                        "actual": "Student registration successful!"
+                    }
+                ],
+                "dep_result": []
+            }
+        },
+        {
+            "kind": "Http",
+            "name": "test-set-1",
+            "status": "PASSED",
+            "started": 1726132581,
+            "completed": 1726132581,
+            "test_case_path": "/Users/sonichigo/GitHub/samples-typescript/express-mongoose/keploy/test-set-1",
+            "mock_path": "/Users/sonichigo/GitHub/samples-typescript/express-mongoose/keploy/test-set-1/mocks.yaml",
+            "test_case_id": "test-6",
+            "req": {
+                "method": "GET",
+                "proto_major": 1,
+                "proto_minor": 1,
+                "url": "http://172.18.0.4:8000/students",
+                "header": {
+                    "Accept": "*/*",
+                    "Host": "localhost:8000",
+                    "User-Agent": "curl/8.7.1"
+                },
+                "body": "",
+                "timestamp": "2024-09-09T13:03:50.622Z"
+            },
+            "resp": {
+                "status_code": 200,
+                "header": {
+                    "Connection": "keep-alive",
+                    "Content-Length": "318",
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Date": "Thu, 12 Sep 2024 09:16:21 GMT",
+                    "Etag": "W/\"13e-QJ8vh/+wGRMM7D+EFOQ9hhS8WCg\"",
+                    "Keep-Alive": "timeout=5",
+                    "X-Powered-By": "Express"
+                },
+                "body": "[{\"_id\":\"66def236b10d928a8ddfc0d3\",\"name\":\"John Doe\",\"email\":\"john@example.com\",\"phone\":123456789,\"__v\":0},{\"_id\":\"66def236b10d928a8ddfc0d5\",\"name\":\"Alice Green\",\"email\":\"green@alice.com\",\"phone\":3939201584,\"__v\":0},{\"_id\":\"66def236b10d928a8ddfc0d7\",\"name\":\"John Do\",\"email\":\"john@xyiz.com\",\"phone\":123456799,\"__v\":0}]",
+                "status_message": "",
+                "proto_major": 0,
+                "proto_minor": 0,
+                "timestamp": "1901-01-01T00:00:00.000Z"
+            },
+            "noise": {
+                "header.Date": []
+            },
+            "result": {
+                "status_code": {
+                    "normal": true,
+                    "expected": 200,
+                    "actual": 200
+                },
+                "headers_result": [
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Content-Type",
+                            "value": [
+                                "application/json; charset=utf-8"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Content-Type",
+                            "value": [
+                                "application/json; charset=utf-8"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Date",
+                            "value": [
+                                "Mon, 09 Sep 2024 13:03:50 GMT"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Date",
+                            "value": [
+                                "Thu, 12 Sep 2024 09:16:21 GMT"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Etag",
+                            "value": [
+                                "W/\"13e-QJ8vh/+wGRMM7D+EFOQ9hhS8WCg\""
+                            ]
+                        },
+                        "actual": {
+                            "key": "Etag",
+                            "value": [
+                                "W/\"13e-QJ8vh/+wGRMM7D+EFOQ9hhS8WCg\""
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Keep-Alive",
+                            "value": [
+                                "timeout=5"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Keep-Alive",
+                            "value": [
+                                "timeout=5"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "X-Powered-By",
+                            "value": [
+                                "Express"
+                            ]
+                        },
+                        "actual": {
+                            "key": "X-Powered-By",
+                            "value": [
+                                "Express"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Connection",
+                            "value": [
+                                "keep-alive"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Connection",
+                            "value": [
+                                "keep-alive"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Content-Length",
+                            "value": [
+                                "318"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Content-Length",
+                            "value": [
+                                "318"
+                            ]
+                        }
+                    }
+                ],
+                "body_result": [
+                    {
+                        "normal": true,
+                        "type": "JSON",
+                        "expected": "[{\"_id\":\"66def236b10d928a8ddfc0d3\",\"name\":\"John Doe\",\"email\":\"john@example.com\",\"phone\":123456789,\"__v\":0},{\"_id\":\"66def236b10d928a8ddfc0d5\",\"name\":\"Alice Green\",\"email\":\"green@alice.com\",\"phone\":3939201584,\"__v\":0},{\"_id\":\"66def236b10d928a8ddfc0d7\",\"name\":\"John Do\",\"email\":\"john@xyiz.com\",\"phone\":123456799,\"__v\":0}]",
+                        "actual": "[{\"_id\":\"66def236b10d928a8ddfc0d3\",\"name\":\"John Doe\",\"email\":\"john@example.com\",\"phone\":123456789,\"__v\":0},{\"_id\":\"66def236b10d928a8ddfc0d5\",\"name\":\"Alice Green\",\"email\":\"green@alice.com\",\"phone\":3939201584,\"__v\":0},{\"_id\":\"66def236b10d928a8ddfc0d7\",\"name\":\"John Do\",\"email\":\"john@xyiz.com\",\"phone\":123456799,\"__v\":0}]"
+                    }
+                ],
+                "dep_result": []
+            }
+        },
+        {
+            "kind": "Http",
+            "name": "test-set-1",
+            "status": "PASSED",
+            "started": 1726132581,
+            "completed": 1726132581,
+            "test_case_path": "/Users/sonichigo/GitHub/samples-typescript/express-mongoose/keploy/test-set-1",
+            "mock_path": "/Users/sonichigo/GitHub/samples-typescript/express-mongoose/keploy/test-set-1/mocks.yaml",
+            "test_case_id": "test-7",
+            "req": {
+                "method": "GET",
+                "proto_major": 1,
+                "proto_minor": 1,
+                "url": "http://172.18.0.4:8000/students",
+                "header": {
+                    "Accept": "*/*",
+                    "Host": "localhost:8000",
+                    "User-Agent": "curl/8.7.1"
+                },
+                "body": "",
+                "timestamp": "2024-09-09T13:03:50.635Z"
+            },
+            "resp": {
+                "status_code": 200,
+                "header": {
+                    "Connection": "keep-alive",
+                    "Content-Length": "318",
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Date": "Thu, 12 Sep 2024 09:16:21 GMT",
+                    "Etag": "W/\"13e-QJ8vh/+wGRMM7D+EFOQ9hhS8WCg\"",
+                    "Keep-Alive": "timeout=5",
+                    "X-Powered-By": "Express"
+                },
+                "body": "[{\"_id\":\"66def236b10d928a8ddfc0d3\",\"name\":\"John Doe\",\"email\":\"john@example.com\",\"phone\":123456789,\"__v\":0},{\"_id\":\"66def236b10d928a8ddfc0d5\",\"name\":\"Alice Green\",\"email\":\"green@alice.com\",\"phone\":3939201584,\"__v\":0},{\"_id\":\"66def236b10d928a8ddfc0d7\",\"name\":\"John Do\",\"email\":\"john@xyiz.com\",\"phone\":123456799,\"__v\":0}]",
+                "status_message": "",
+                "proto_major": 0,
+                "proto_minor": 0,
+                "timestamp": "1901-01-01T00:00:00.000Z"
+            },
+            "noise": {
+                "header.Date": []
+            },
+            "result": {
+                "status_code": {
+                    "normal": true,
+                    "expected": 200,
+                    "actual": 200
+                },
+                "headers_result": [
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Date",
+                            "value": [
+                                "Mon, 09 Sep 2024 13:03:50 GMT"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Date",
+                            "value": [
+                                "Thu, 12 Sep 2024 09:16:21 GMT"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Etag",
+                            "value": [
+                                "W/\"13e-QJ8vh/+wGRMM7D+EFOQ9hhS8WCg\""
+                            ]
+                        },
+                        "actual": {
+                            "key": "Etag",
+                            "value": [
+                                "W/\"13e-QJ8vh/+wGRMM7D+EFOQ9hhS8WCg\""
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Keep-Alive",
+                            "value": [
+                                "timeout=5"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Keep-Alive",
+                            "value": [
+                                "timeout=5"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "X-Powered-By",
+                            "value": [
+                                "Express"
+                            ]
+                        },
+                        "actual": {
+                            "key": "X-Powered-By",
+                            "value": [
+                                "Express"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Connection",
+                            "value": [
+                                "keep-alive"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Connection",
+                            "value": [
+                                "keep-alive"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Content-Length",
+                            "value": [
+                                "318"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Content-Length",
+                            "value": [
+                                "318"
+                            ]
+                        }
+                    },
+                    {
+                        "normal": true,
+                        "expected": {
+                            "key": "Content-Type",
+                            "value": [
+                                "application/json; charset=utf-8"
+                            ]
+                        },
+                        "actual": {
+                            "key": "Content-Type",
+                            "value": [
+                                "application/json; charset=utf-8"
+                            ]
+                        }
+                    }
+                ],
+                "body_result": [
+                    {
+                        "normal": true,
+                        "type": "JSON",
+                        "expected": "[{\"_id\":\"66def236b10d928a8ddfc0d3\",\"name\":\"John Doe\",\"email\":\"john@example.com\",\"phone\":123456789,\"__v\":0},{\"_id\":\"66def236b10d928a8ddfc0d5\",\"name\":\"Alice Green\",\"email\":\"green@alice.com\",\"phone\":3939201584,\"__v\":0},{\"_id\":\"66def236b10d928a8ddfc0d7\",\"name\":\"John Do\",\"email\":\"john@xyiz.com\",\"phone\":123456799,\"__v\":0}]",
+                        "actual": "[{\"_id\":\"66def236b10d928a8ddfc0d3\",\"name\":\"John Doe\",\"email\":\"john@example.com\",\"phone\":123456789,\"__v\":0},{\"_id\":\"66def236b10d928a8ddfc0d5\",\"name\":\"Alice Green\",\"email\":\"green@alice.com\",\"phone\":3939201584,\"__v\":0},{\"_id\":\"66def236b10d928a8ddfc0d7\",\"name\":\"John Do\",\"email\":\"john@xyiz.com\",\"phone\":123456799,\"__v\":0}]"
+                    }
+                ],
+                "dep_result": []
+            }
+        }
+    ],
+    "test_set": "test-set-1"
+}
