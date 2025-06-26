@@ -1,0 +1,109 @@
+databaseChangeLog:
+  - changeSet:
+      id: product-table
+      author: sonichigo
+      labels: products-api 
+      comment: Creating product table for REST API
+      preconditions:
+        onFail: MARK_RAN
+        not:
+          tableExists:
+            tableName: products
+      changes:
+        - createTable:
+            tableName: products
+            columns:
+              - column:
+                  name: id
+                  type: SERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: NUMERIC(10,2)
+                  defaultValue: 0.00
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            tableName: products
+
+  - changeSet:
+      id: product-table-indexes
+      author: sonichigo1219
+      labels: products-api
+      comment: Adding indexes for the products table
+      changes:
+        - createIndex:
+            tableName: products
+            columns:
+              - column:
+                  name: name
+            indexName: idx_product_name
+      rollback:
+        - dropIndex:
+            indexName: idx_product_name
+            tableName: products
+
+  - changeSet:
+      id: product-sample-data
+      author: sonichigo1219
+      labels: products-api
+      comment: Inserting sample data for development environment
+      changes:
+        - insert:
+            tableName: products
+            columns:
+              - column:
+                  name: name
+                  value: "Sample Product 1"
+              - column:
+                  name: price
+                  value: 20
+        - insert:
+            tableName: products
+            columns:
+              - column:
+                  name: name
+                  value: "Sample Product 2"
+              - column:
+                  name: price
+                  value: 29.99
+      rollback:
+        - delete:
+            tableName: products
+            where: name in ('Sample Product 1', 'Sample Product 2')
+
+  - changeSet:
+      id: product-sample
+      author: sonichigo
+      labels: products-api
+      comment: Inserting sample data for development environment
+      changes:
+        - insert:
+            tableName: products
+            columns:
+              - column:
+                  name: name
+                  value: "Sample Product 3"
+              - column:
+                  name: price
+                  value: 27
+        - insert:
+            tableName: products
+            columns:
+              - column:
+                  name: name
+                  value: "Sample Product 4"
+              - column:
+                  name: price
+                  value: 35.99
+      rollback:
+        - delete:
+            tableName: products
+            where: name in ('Sample Product 3', 'Sample Product 4')
