@@ -1,0 +1,244 @@
+databaseChangeLog:
+  - changeSet:
+      id: product-table-v2
+      author: sonichigo
+      labels: products-api 
+      comment: Creating product table for REST API
+      changes:
+        - createTable:
+            tableName: product
+            columns:
+              - column:
+                  name: id
+                  type: SERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: NUMERIC(10,2)
+                  defaultValue: 0.00
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            tableName: product
+  - changeSet:
+      id: product-table-indexes-v2
+      author: sonichigo
+      labels: products-api
+      comment: Adding indexes for the products table
+      changes:
+        - createIndex:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+            indexName: idx_products_name
+      rollback:
+        - dropIndex:
+            indexName: idx_products_name
+            tableName: product
+  - changeSet:
+      id: product-sample-data-initial
+      author: sonichigo
+      labels: products-api-v2
+      context: "dev,staging,qa"
+      comment: Inserting initial sample data for non-production environments
+      changes:
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Wireless Bluetooth Headphones"
+              - column:
+                  name: price
+                  value: 89.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "USB-C Charging Cable"
+              - column:
+                  name: price
+                  value: 15.99
+      rollback:
+        - delete:
+            tableName: product
+            where: name in ('Wireless Bluetooth Headphones', 'USB-C Charging Cable')
+  - changeSet:
+      id: product-sample-data-electronics
+      author: sonichigo
+      labels: products-api
+      context: "dev,staging,qa"
+      comment: Inserting electronics sample data for non-production environments
+      changes:
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Smartphone Case"
+              - column:
+                  name: price
+                  value: 24.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Portable Power Bank"
+              - column:
+                  name: price
+                  value: 45.00
+      rollback:
+        - delete:
+            tableName: product
+            where: name in ('Smartphone Case', 'Portable Power Bank')
+  - changeSet:
+      id: product-sample-data-accessories
+      author: sonichigo
+      labels: products-api
+      context: "dev,staging,qa"
+      comment: Inserting accessories sample data for non-production environments
+      changes:
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Wireless Mouse Pad"
+              - column:
+                  name: price
+                  value: 12.50
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Ergonomic Laptop Stand"
+              - column:
+                  name: price
+                  value: 65.99
+      rollback:
+        - delete:
+            tableName: product
+            where: name in ('Wireless Mouse Pad', 'Ergonomic Laptop Stand')
+  - changeSet:
+      id: product-production-data-initial
+      author: sonichigo
+      labels: products-api
+      context: "production-na,production-apj"
+      comment: Inserting initial production catalog data
+      changes:
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Professional Wireless Headset"
+              - column:
+                  name: price
+                  value: 149.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Premium USB-C Hub"
+              - column:
+                  name: price
+                  value: 79.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Business Laptop Sleeve"
+              - column:
+                  name: price
+                  value: 39.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "High-Speed External SSD"
+              - column:
+                  name: price
+                  value: 199.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Wireless Presentation Remote"
+              - column:
+                  name: price
+                  value: 49.99
+      rollback:
+        - delete:
+            tableName: product
+            where: name in ('Professional Wireless Headset', 'Premium USB-C Hub', 'Business Laptop Sleeve', 'High-Speed External SSD', 'Wireless Presentation Remote')
+  - changeSet:
+      id: product-production-data-enterprise
+      author: sonichigo
+      labels: products-api
+      context: "production-na,production-apj"
+      comment: Inserting enterprise-grade production catalog data
+      changes:
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Enterprise Docking Station"
+              - column:
+                  name: price
+                  value: 299.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "4K Webcam with Auto-Focus"
+              - column:
+                  name: price
+                  value: 189.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Noise-Cancelling Conference Microphone"
+              - column:
+                  name: price
+                  value: 249.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Ergonomic Mechanical Keyboard"
+              - column:
+                  name: price
+                  value: 129.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Professional Monitor Stand"
+              - column:
+                  name: price
+                  value: 89.99
+      rollback:
+        - delete:
+            tableName: product
+            where: name in ('Enterprise Docking Station', '4K Webcam with Auto-Focus', 'Noise-Cancelling Conference Microphone', 'Ergonomic Mechanical Keyboard', 'Professional Monitor Stand')
