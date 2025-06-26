@@ -1,0 +1,134 @@
+databaseChangeLog:
+  - changeSet:
+      id: product-table-v2
+      author: sonichigo
+      context: dev
+      labels: products-api 
+      comment: Creating product table for REST API
+      changes:
+        - createTable:
+            tableName: product
+            columns:
+              - column:
+                  name: id
+                  type: SERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: NUMERIC(10,2)
+                  defaultValue: 0.00
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            tableName: product
+  - changeSet:
+      id: product-table-indexes-v2
+      author: sonichigo
+      context: dev
+      labels: products-api
+      comment: Adding indexes for the products table
+      changes:
+        - createIndex:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+            indexName: idx_products_name
+      rollback:
+        - dropIndex:
+            indexName: idx_products_name
+            tableName: product
+  - changeSet:
+      id: product-sample-data-initial
+      author: sonichigo
+      labels: products-api-v2
+      context: dev
+      comment: Inserting initial sample data for development environment
+      changes:
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Wireless Bluetooth Headphones"
+              - column:
+                  name: price
+                  value: 89.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "USB-C Charging Cable"
+              - column:
+                  name: price
+                  value: 15.99
+      rollback:
+        - delete:
+            tableName: product
+            where: name in ('Wireless Bluetooth Headphones', 'USB-C Charging Cable')
+  - changeSet:
+      id: product-sample-data-electronics
+      author: sonichigo
+      labels: products-api
+      context: dev
+      comment: Inserting electronics sample data for development environment
+      changes:
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Smartphone Case"
+              - column:
+                  name: price
+                  value: 24.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Portable Power Bank"
+              - column:
+                  name: price
+                  value: 45.00
+      rollback:
+        - delete:
+            tableName: product
+            where: name in ('Smartphone Case', 'Portable Power Bank')
+  - changeSet:
+      id: product-sample-data-accessories
+      author: sonichigo
+      labels: products-api
+      context: dev
+      comment: Inserting accessories sample data for development environment
+      changes:
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Wireless Mouse Pad"
+              - column:
+                  name: price
+                  value: 12.50
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Ergonomic Laptop Stand"
+              - column:
+                  name: price
+                  value: 65.99
+      rollback:
+        - delete:
+            tableName: product
+            where: name in ('Wireless Mouse Pad', 'Ergonomic Laptop Stand')
