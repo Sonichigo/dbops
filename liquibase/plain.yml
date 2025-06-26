@@ -127,7 +127,7 @@ databaseChangeLog:
         - delete:
             tableName: product
             where: name in ('Wireless Mouse Pad', 'Ergonomic Laptop Stand')
- - changeSet:
+  - changeSet:
       id: product-production-data-initial
       author: sonichigo
       labels: products-api
@@ -182,7 +182,7 @@ databaseChangeLog:
         - delete:
             tableName: product
             where: name in ('Professional Wireless Headset', 'Premium USB-C Hub', 'Business Laptop Sleeve', 'High-Speed External SSD', 'Wireless Presentation Remote')
- - changeSet:
+  - changeSet:
       id: product-production-data-enterprise
       author: sonichigo
       labels: products-api
