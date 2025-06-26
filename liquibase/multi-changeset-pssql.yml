@@ -130,3 +130,115 @@ databaseChangeLog:
         - delete:
             tableName: product
             where: name in ('Wireless Mouse Pad', 'Ergonomic Laptop Stand')
+ - changeSet:
+      id: product-production-data-initial
+      author: sonichigo
+      labels: products-api
+      context: "production-na,production-apj"
+      comment: Inserting initial production catalog data
+      changes:
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Professional Wireless Headset"
+              - column:
+                  name: price
+                  value: 149.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Premium USB-C Hub"
+              - column:
+                  name: price
+                  value: 79.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Business Laptop Sleeve"
+              - column:
+                  name: price
+                  value: 39.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "High-Speed External SSD"
+              - column:
+                  name: price
+                  value: 199.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Wireless Presentation Remote"
+              - column:
+                  name: price
+                  value: 49.99
+      rollback:
+        - delete:
+            tableName: product
+            where: name in ('Professional Wireless Headset', 'Premium USB-C Hub', 'Business Laptop Sleeve', 'High-Speed External SSD', 'Wireless Presentation Remote')
+ - changeSet:
+      id: product-production-data-enterprise
+      author: sonichigo
+      labels: products-api
+      context: "production-na,production-apj"
+      comment: Inserting enterprise-grade production catalog data
+      changes:
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Enterprise Docking Station"
+              - column:
+                  name: price
+                  value: 299.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "4K Webcam with Auto-Focus"
+              - column:
+                  name: price
+                  value: 189.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Noise-Cancelling Conference Microphone"
+              - column:
+                  name: price
+                  value: 249.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Ergonomic Mechanical Keyboard"
+              - column:
+                  name: price
+                  value: 129.99
+        - insert:
+            tableName: product
+            columns:
+              - column:
+                  name: name
+                  value: "Professional Monitor Stand"
+              - column:
+                  name: price
+                  value: 89.99
+      rollback:
+        - delete:
+            tableName: product
+            where: name in ('Enterprise Docking Station', '4K Webcam with Auto-Focus', 'Noise-Cancelling Conference Microphone', 'Ergonomic Mechanical Keyboard', 'Professional Monitor Stand')
