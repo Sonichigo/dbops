@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: animesh
+      comment: Create items table
+      changes:
+        - createTable:
+            tableName: items
+            columns:
+              - column:
+                  name: id
+                  type: SERIAL
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+                  constraints:
+                    nullable: true
+
+  - changeSet:
+      id: 2
+      author: animesh
+      comment: Add index on name column for better query performance
+      changes:
+        - createIndex:
+            indexName: idx_items_name
+            tableName: items
+            columns:
+              - column:
+                  name: name
