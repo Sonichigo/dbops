@@ -1,0 +1,661 @@
+databaseChangeLog:
+  #-  logicalFilePath:  example-changelog.yaml
+  - changeSet:
+      id: my.poc:1
+      author: my.poc
+      labels: tag_1 
+      context: example-context
+      comment: example comment
+      changes:
+        - createTable:
+            tableName: person
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address1
+                  type: VARCHAR(50)
+              - column:
+                  name: address2
+                  type: VARCHAR(50)
+              - column:
+                  name: city
+                  type: VARCHAR(30)
+      rollback:
+        - dropTable:
+            tableName: person
+  - includeAll:
+      path: sql
+      logicalFilePath:  ""
+      relativeToChangelogFile: true
+  - changeSet:
+      id: my.poc:2
+      author: my.poc
+      labels: tag_2 
+      context: example-context
+      comment: example comment
+      changes:
+        - createTable:
+            tableName: company
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address1
+                  type: VARCHAR(50)
+              - column:
+                  name: address2
+                  type: VARCHAR(50)
+              - column:
+                  name: city
+                  type: VARCHAR(30)
+      rollback:
+        - dropTable:
+            tableName: company
+
+  - changeSet:
+      id: my.poc:3
+      author: my.poc
+      labels: tag_3 
+      context: example-context
+      comment: example comment
+      changes:
+        - addColumn:
+            tableName: person
+            columns:
+              - column:
+                  name: country
+                  type: varchar(100)
+      rollback:
+        - dropColumn:
+            tableName: person
+            columnName: country
+
+  - changeSet:
+      id: my.poc:4
+      author: my.poc
+      labels: example-label
+      context: example-context
+      comment: example comment
+      changes:
+        - addColumn:
+            tableName: person
+            columns:
+              - column:
+                  name: state
+                  type: varchar(10)
+      rollback:
+        - dropColumn:
+            tableName: person
+            columnName: state
+
+  - changeSet:
+      id: my.poc:5
+      author: my.poc
+      labels: tag_4 
+      context: example-context
+      context: example-context
+      comment: example comment
+      changes:
+        - addColumn:
+            tableName: person
+            columns:
+              - column:
+                  name: zone
+                  type: varchar(10)
+      rollback:
+        - dropColumn:
+            tableName: person
+            columnName: zone
+
+  - changeSet:
+      id: my.poc:6
+      author: my.poc
+      labels: tag_5 
+      context: example-context
+      comment: example comment
+      changes:
+        - addColumn:
+            tableName: person
+            columns:
+              - column:
+                  name: field1
+                  type: varchar(10)
+      rollback:
+        - dropColumn:
+            tableName: person
+            columnName: field1
+  - changeSet:
+      id: my.poc:7
+      author: my.poc
+      labels: tag_6 
+      context: example-context
+      comment: example comment
+      changes:
+        - addColumn:
+            tableName: person
+            columns:
+              - column:
+                  name: field2
+                  type: varchar(4000)
+      rollback:
+        - dropColumn:
+            tableName: person
+            columnName: field2        
+  - changeSet:
+      id: satwell:11
+      author: satwell@harness.io
+      context: example-context
+      comment: I really want another column 
+      changes:
+        - addColumn:
+            tableName: person
+            columns:
+              - column:
+                  name: field6
+                  type: varchar(4000)
+  - changeSet:
+      id: my.poc:1000
+      author: my.poc
+      labels: tag_1 
+      context: example-context
+      comment: example comment
+      changes:
+        - createTable:
+            tableName: pets
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: species
+                  type: VARCHAR(50)
+              - column:
+                  name: owner
+                  type: VARCHAR(50)
+      rollback:
+        - dropTable:
+            tableName: pets      
+  - changeSet:
+      id: satwell:12
+      author: satwell@harness.io
+      context: example-context
+      comment: I really want another column 
+      changes:
+        - addColumn:
+            tableName: pets
+            columns:
+              - column:
+                  name: breed
+                  type: varchar(4000)
+  - changeSet:
+      id: satwell:13
+      author: satwell@harness.io
+      context: example-context
+      comment: I really want another column 
+      changes:
+        - addColumn:
+            tableName: pets
+            columns:
+              - column:
+                  name: tail_length
+                  type: varchar(4000)
+  - changeSet:
+      id: satwell:14
+      author: satwell@harness.io
+      context: example-context
+      comment: I really want another column 
+      changes:
+        - addColumn:
+            tableName: pets
+            columns:
+              - column:
+                  name: paw_size
+                  type: varchar(4000)
+  - changeSet:
+      id: satwell:15
+      author: satwell@harness.io
+      context: example-context
+      comment: I really want another column 
+      changes:
+        - addColumn:
+            tableName: pets
+            columns:
+              - column:
+                  name: last_nail_trim_date
+                  type: varchar(4000)
+  - changeSet:
+      id: satwell:16
+      author: my.poc
+      labels: tag_1 
+      context: example-context
+      comment: example comment
+      changes:
+        - createTable:
+            tableName: wild_aniumals
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: species
+                  type: VARCHAR(50)
+      rollback:
+        - dropTable:
+            tableName: wild_aniumals  
+  - changeSet:
+      id: satwell:17
+      author: satwell
+      labels: tag_1 
+      context: example-context
+      comment: example comment
+      changes:
+        - createIndex:
+            tableName: wild_aniumals
+            columns:
+              - column:
+                  name: name
+            indexName: idx_wild_animals
+  - changeSet:
+      id: satwell:18
+      author: satwell
+      labels: tag_1 
+      context: example-context
+      comment: example comment
+      changes:
+        - createIndex:
+            tableName: wild_aniumals
+            columns:
+              - column:
+                  name: species
+            indexName: idx_wild_animals_species
+  - changeSet:
+      id: satwell:19
+      author: satwell
+      labels: tag_1 
+      context: example-context
+      comment: example comment
+      changes:
+        - addColumn:
+            tableName: wild_aniumals
+            columns:
+              - column:
+                  name: aggression_level
+                  type: VARCHAR(50)
+        - createIndex:
+            tableName: wild_aniumals
+            columns:
+              - column:
+                  name: aggression_level
+            indexName: idx_wild_animals_aggression_level
+  - changeSet:
+      id: satwell:20-sql-rollback-separate-file
+      author: satwell
+      labels: tag_1 
+      ignore: true
+      changes:
+      -  sqlFile:
+           path:  examples/001.sql
+           relativeToChangelogFile: true
+      rollback:
+      -  sqlFile:
+           path:  examples/rollback_001.sql  
+           relativeToChangelogFile: true 
+  - changeSet:
+      id: satwell:21
+      author: satwell
+      labels: tag_1 
+      context: example-context
+      comment: example comment
+      changes:
+        - addColumn:
+            tableName: wild_aniumals
+            columns:
+              - column:
+                  name: climate
+                  type: VARCHAR(50)                   
+  - changeSet:
+      id: satwell:setraining
+      author: satwell
+      changes:
+        - createTable:
+            tableName: se_lab
+            columns:
+              - column:
+                  name: se_name
+                  type: VARCHAR(50)
+              - column:
+                  name: se_tenure
+                  type: int      
+  - changeSet:
+      id: satwell:setraining-2
+      author: satwell
+      changes:
+        - addColumn:
+            tableName: se_lab
+            columns:
+              - column:
+                  name: job_title
+                  type: VARCHAR(50)  
+  - changeSet:
+      id: satwell:setraining-3
+      author: satwell
+      changes:
+        - addColumn:
+            tableName: se_lab
+            columns:
+              - column:
+                  name: region
+                  type: VARCHAR(50)          
+  - changeSet:
+      id: satwell:demoTable
+      author: satwell
+      changes:
+        - createIndex:
+            tableName: se_lab
+            columns:
+              - column:
+                  name: se_name
+            indexName: idx_se_name  
+  - changeSet:
+      id: satwell:demoTable2
+      author: satwell
+      changes:
+        - createIndex:
+            tableName: se_lab
+            columns:
+              - column:
+                  name: region
+            indexName: idx_se_name2
+  - changeSet:
+      id: satwell:createDB
+      author: satwell      
+      changes:
+        - createIndex:
+            tableName: se_lab
+            columns:
+              - column:
+                  name: job_title
+            indexName: idx_job_title
+  - changeSet:
+      id: satwell:demoTable3
+      author: satwell
+      changes:
+        - createIndex:
+            tableName: se_lab
+            columns:
+              - column:
+                  name: region
+              - column:
+                  name: se_name
+            indexName: idx_se_name_region
+  - changeSet:
+      id: satwell:demoTable4
+      author: satwell
+      changes:
+        - createIndex:
+            tableName: se_lab
+            columns:
+              - column:
+                  name: se_name
+            indexName: idx_se_name_region23223
+  -  changeSet:
+      id:  satwell:procedure-1
+      author:  satwell
+      changes:
+      -  createProcedure:
+          path:  procedures/my-logic-v2.sql
+          procedureName: simple_test_procedure
+          relativeToChangelogFile: true
+          replaceIfExists: false
+      rollback:
+      -  dropProcedure:
+          procedureName:  simple_test_procedure
+  -  changeSet:
+      id:  satwell:procedure-2
+      author:  satwell
+      changes:
+      -  createProcedure:
+          path:  procedures/my-logic-v3.sql
+          procedureName: simple_test_procedure
+          relativeToChangelogFile: true
+      rollback:
+      -  createProcedure:
+          path:  procedures/my-logic-v2.sql
+          procedureName: simple_test_procedure
+          relativeToChangelogFile: true
+  - changeSet:
+      id: plant-table
+      author: satwell
+      labels: garden-10 
+      comment: adding in a table to represent plants
+      changes:
+        - createTable:
+            tableName: plants
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: scientific_name
+                  type: VARCHAR(150)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: VARCHAR(10)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: plant-table-idx
+      author: satwell
+      labels: garden-10 
+      comment: adding index on name
+      changes:
+        - createIndex:
+            tableName: plants
+            columns:
+              - column:
+                  name: scientific_name
+            indexName: idx_plant_scientific_name
+  - changeSet:
+      id: plant-table-idx2
+      author: satwell
+      labels: garden-10 
+      comment: adding index on name
+      changes:
+        - createIndex:
+            tableName: plants
+            columns:
+              - column:
+                  name: type
+            indexName: idx_plant_type
+  -  changeSet:
+      id:  procedure-3
+      author:  satwell
+      changes:
+      -  createProcedure:
+          path:  procedures/my-logic-v4.sql
+          procedureName: simple_test_procedure
+          relativeToChangelogFile: true
+      rollback:
+      -  createProcedure:
+          path:  procedures/my-logic-v3.sql
+          procedureName: simple_test_procedure
+          relativeToChangelogFile: true
+  - changeSet:
+      id: common-name
+      author: satwell
+      labels: garden-12
+      comment: apparently not everyone likes latin...
+      changes:
+        - addColumn:
+            tableName: plants
+            columns:
+              - column:
+                  name: common_name
+                  type: varchar(10)
+      rollback:
+        - dropColumn:
+            tableName: plants
+            columnName: common_name
+  - changeSet:
+      id: plant-reference-data-v1
+      author: satwell
+      labels: garden-14
+      context: test-env-only
+      comment: some test data for the plants table
+      changes:
+      -  loadData:
+           file:  testdata/plants.csv
+           relativeToChangelogFile:  true
+           tableName:  plants
+      rollback:
+        - delete:
+            tableName: plants
+  - changeSet:
+      id: garden-table
+      author: satwell
+      labels: garden-10 
+      comment: adding in a table to represent plants
+      changes:
+        - createTable:
+            tableName: garden
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: plant_id
+                  type: int
+              - column:
+                  name: rowNumber
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: qty
+                  type: int
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: garden-idx
+      author: satwell 
+      ignore: false
+      labels: garden-11
+      comment: setting up foregin key on garden's plant id
+      changes:
+        - createIndex:
+            tableName: garden
+            columns:
+              - column:
+                  name: plant_id
+            indexName: idx_garden_plant
+  - changeSet:
+      id: plant-table-idx3
+      author: satwell 
+      ignore: false
+      labels: garden-11 
+      comment: setting up foregin key on garden's plant id
+      changes:
+        - createIndex:
+            tableName: plants
+            columns:
+              - column:
+                  name: id
+            indexName: idx_plant_id
+  - changeSet:
+      id: garden-table-foregin-key-plant-id
+      author: satwell 
+      ignore: false
+      labels: garden-11 
+      comment: setting up foregin key on garden's plant id
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: garden
+            baseColumnNames: plant_id
+            referencedTableName: plants
+            referencedColumnNames: id
+            constraintName: garden_plant_id
+  - changeSet:
+      id: garden-13-1
+      author: satwell
+      ignore: false
+      labels: garden-13
+      comment: want to track how much light each plant needs
+      changes:
+        - addColumn:
+            tableName: plants
+            columns:
+              - column:
+                  name: required_light_level
+                  type: INT
+  - changeSet:
+      id: garden-13-2
+      author: satwell 
+      ignore: false
+      labels: garden-13 
+      comment: want to track how much light each plant needs
+      changes:
+        - createIndex:
+            tableName: plants
+            columns:
+              - column:
+                  name: required_light_level
+            indexName: idx_plant_required_light_level
+  - changeSet:
+      id: satwell:createDB2
+      author: satwell      
+      ignore: true
+      changes:
+      -  sql:
+          sql:  this is invalid sql that will fail to run
+  - changeSet:
+      id: satwell:dropTable
+      author: satwell
+      ignore: true
+      changes:
+        - dropTable:
+            tableName: demo_table      
+      rollback: []
+      
