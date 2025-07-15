@@ -2,36 +2,10 @@ databaseChangeLog:
   - changeSet:
       id: devteam:1
       author: devteam@company.com
-      comment: Create users collection with validation
+      comment: Create users collection
       changes:
         - createCollection:
             collectionName: users
-            options:
-              validator:
-                $jsonSchema:
-                  bsonType: object
-                  required:
-                  - email
-                  - username
-                  - createdAt
-                  properties:
-                    email:
-                      bsonType: string
-                      pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-                      description: "Valid email address"
-                    username:
-                      bsonType: string
-                      minLength: 3
-                      maxLength: 20
-                      description: "Username between 3-20 characters"
-                    createdAt:
-                      bsonType: date
-                      description: "Account creation timestamp"
-                    status:
-                      bsonType: string
-                      enum: ["active", "inactive", "suspended"]
-              validationAction: error
-              validationLevel: strict
   - changeSet:
       id: devteam:2
       author: devteam@company.com
@@ -75,24 +49,3 @@ databaseChangeLog:
       changes:
         - createCollection:
             collectionName: products
-            options:
-              validator:
-                $jsonSchema:
-                  bsonType: object
-                  required:
-                  - name
-                  - price
-                  - category
-                  properties:
-                    name:
-                      bsonType: string
-                      description: "Product name"
-                    price:
-                      bsonType: number
-                      minimum: 0
-                      description: "Product price"
-                    category:
-                      bsonType: string
-                      description: "Product category"
-              validationAction: warn
-              validationLevel: moderate
