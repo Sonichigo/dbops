@@ -1,51 +1,58 @@
-databaseChangeLog:
+databaseChangeLog: 
   - changeSet:
-      id: devteam:1
-      author: devteam@company.com
-      comment: Create users collection
+      id: satwell:1
+      author: satwell@harness.io
+      comment: I really want another column 
       changes:
         - createCollection:
-            collectionName: users
+            collectionName: pets
+            options:
+              validator:
+                  $jsonSchema:
+                    bsonType: object
+                    required:
+                    - name
+                    - species
+                  properties:
+                    name:
+                      bsonType: string
+                      description: "The Name"
+                    species:
+                      bsonType: string
+                      description: "cat, dog, or other"                    
+              validationAction: warn
+              validationLevel: strict
   - changeSet:
-      id: devteam:2
-      author: devteam@company.com
-      comment: Add unique index on email
-      changes:
-        - createIndex:
-            collectionName: users
-            keys: '{email: 1}'
-            options: '{unique: true, name: "idx_email_unique"}'
-  - changeSet:
-      id: devteam:3
-      author: devteam@company.com
+      id: satwell:13
+      author: satwell@harness.io
       ignore: false
-      context: production
-      comment: Add compound index for user queries
+      context: example-context
+      comment: add an index
       changes:
         - createIndex:
-            collectionName: users
-            keys: '{status: 1, createdAt: -1}'
-            options: '{name: "idx_status_created", background: true}'
+            collectionName: pets
+            keys: '{name: 1}'
+            options: '{unique: false, name: "idx_name"}'
   - changeSet:
-      id: devteam:4-base
-      author: devteam@company.com
+      id: satwell:14-base
+      author: satwell@harness.io 
       ignore: false
       changes:
         - createCollection:
-            collectionName: orders
+            collectionName: TripPair
   - changeSet:
-      id: devteam:4-index
-      author: devteam@company.com
+      id: satwell:14-index
+      author: satwell@harness.io 
       ignore: false
       changes:
         - createIndex:
-            collectionName: orders
-            keys: '{"userId": 1, "status": 1, "orderDate": -1, "totalAmount": 1}'
-            options: '{name: "orders_user_status_idx"}'
+            collectionName: TripPair
+            keys: '{"PairingDuty.PairingDutyFlightLeg.FlightLegId": 1, "CancelInd": 1, "StatInd": 1, "PairingDuty.PairingDutyFlightLeg.DhdInd": 1, "PairCls": 1, "StartDt": 1}'
+            options: '{name: "TripPair_Idx17"}'
   - changeSet:
-      id: devteam:5
-      author: devteam@company.com
-      comment: Create products collection
+      id: satwell:15
+      author: satwell@harness.io
+      comment: create plants table
       changes:
         - createCollection:
-            collectionName: products
+            collectionName: plants
