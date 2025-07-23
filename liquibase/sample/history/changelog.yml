@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - changeSet:
+      id: changelog:1
+      author: satwell
+      comment: example comment
+      changes:
+        - createTable:
+            tableName: executionHistory
+            columns:
+              - column:
+                  name: execution_id
+                  type: VARCHAR(50)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: service
+                  type: VARCHAR(50)
+              - column:
+                  name: infra
+                  type: VARCHAR(50)
+              - column:
+                  name: version
+                  type: VARCHAR(50)
+              - column:
+                  name: env
+                  type: VARCHAR(50)
+      rollback: []
+
+
+     
