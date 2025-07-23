@@ -1,0 +1,50 @@
+databaseChangeLog:
+- changeSet:
+    id: baseline-collections-pets
+    author: createbaseline.py
+    changes:
+    - createCollection:
+        collectionName: pets
+        options: '{"validator": {"$jsonSchema": {"bsonType": "object", "required":
+          ["name", "species"]}, "properties": {"name": {"bsonType": "string", "description":
+          " The Name"}, "species": {"bsonType": "string", "description": "cat, dog,
+          or other"}}}, "validationLevel": "strict", "validationAction": "warn"}'
+    - createIndex:
+        collectionName: pets
+        keys: '{"name": 1}'
+        options: '{"name": "idx_name", "unique": false}'
+    - createIndex:
+        collectionName: pets
+        keys: '{"name": 1, "species": 1}'
+        options: '{"name": "idx_name_species", "unique": true}'
+        unique: true
+- changeSet:
+    id: baseline-collections-plants
+    author: createbaseline.py
+    changes:
+    - createCollection:
+        collectionName: plants
+        options: '{}'
+- changeSet:
+    id: baseline-collections-TripPair
+    author: createbaseline.py
+    changes:
+    - createCollection:
+        collectionName: TripPair
+        options: '{}'
+    - createIndex:
+        collectionName: TripPair
+        keys: '{"PairingDuty.PairingDutyFlightLeg.FlightLegId": 1, "CancelInd": 1,
+          "StatInd": 1, "PairingDuty.PairingDutyFlightLeg.DhdInd": 1, "PairCls": 1,
+          "StartDt": 1}'
+        options: '{"name": "TripPair_Idx17", "unique": false}'
+- changeSet:
+      id: quicktest
+      author: your.name
+      changes:
+        - runCommand:
+            command: |
+              {
+                buildInfo: 1
+              }
+      rollback: []
