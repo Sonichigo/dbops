@@ -1,0 +1,52 @@
+databaseChangeLog:
+  - changeSet:
+      id: devteam:1
+      author: john-doe
+      comment: Create users collection
+      changes:
+        - createCollection:
+            collectionName: users
+            options: '{"validator": {"$jsonSchema": {"bsonType": "object", "required": ["name", "email"], "properties": {"name": {"bsonType": "string", "description": "User's full name"}, "email": {"bsonType": "string", "description": "User's email address"}, "status": {"bsonType": "string", "enum": ["active", "inactive", "pending"], "description": "Account status"}}}}, "validationAction": "warn", "validationLevel": "strict"}'
+  - changeSet:
+      id: devteam:2
+      author: john-doe
+      comment: Add unique index on email
+      changes:
+        - createIndex:
+            collectionName: users
+            keys: '{email: 1}'
+            options: '{unique: true, name: "idx_email_unique"}'
+  - changeSet:
+      id: devteam:3
+      author: john-doe
+      ignore: false
+      context: production
+      comment: Add compound index for user queries
+      changes:
+        - createIndex:
+            collectionName: users
+            keys: '{status: 1, createdAt: -1}'
+            options: '{name: "idx_status_created", background: true}'
+  - changeSet:
+      id: devteam:4-base
+      author: john-doe
+      ignore: false
+      changes:
+        - createCollection:
+            collectionName: orders
+  - changeSet:
+      id: devteam:4-index
+      author: john-doe
+      ignore: false
+      changes:
+        - createIndex:
+            collectionName: orders
+            keys: '{"userId": 1, "status": 1, "orderDate": -1, "totalAmount": 1}'
+            options: '{name: "orders_user_status_idx"}'
+  - changeSet:
+      id: devteam:5
+      author: john-doe
+      comment: Create products collection
+      changes:
+        - createCollection:
+            collectionName: products
