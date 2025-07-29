@@ -7,5 +7,3 @@ databaseChangeLog:
       file: db/v1.0/003-create-orders-table.yaml
   - include:
       file: db/v1.0/004-add-indexes.yaml
-  - include:
-      file: db/v1.0/005-insert-reference-data.yaml
