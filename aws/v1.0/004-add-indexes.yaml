@@ -1,0 +1,147 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-add-performance-indexes
+      author: devops-team
+      context: prod,staging,dev
+      labels: version-1.0,performance
+      comment: Add indexes for better query performance
+      changes:
+        # Users table indexes
+        - createIndex:
+            tableName: users
+            indexName: idx_users_email_active
+            columns:
+              - column:
+                  name: email
+              - column:
+                  name: is_active
+        - createIndex:
+            tableName: users
+            indexName: idx_users_created_at
+            columns:
+              - column:
+                  name: created_at
+        - createIndex:
+            tableName: users
+            indexName: idx_users_last_login
+            columns:
+              - column:
+                  name: last_login_at
+        
+        # Products table indexes
+        - createIndex:
+            tableName: products
+            indexName: idx_products_sku_active
+            columns:
+              - column:
+                  name: sku
+              - column:
+                  name: is_active
+        - createIndex:
+            tableName: products
+            indexName: idx_products_name
+            columns:
+              - column:
+                  name: name
+        - createIndex:
+            tableName: products
+            indexName: idx_products_category_active
+            columns:
+              - column:
+                  name: category_id
+              - column:
+                  name: is_active
+        - createIndex:
+            tableName: products  
+            indexName: idx_products_price_range
+            columns:
+              - column:
+                  name: price
+              - column:
+                  name: is_active
+        
+        # Orders table indexes
+        - createIndex:
+            tableName: orders
+            indexName: idx_orders_user_status
+            columns:
+              - column:
+                  name: user_id
+              - column:
+                  name: status
+        - createIndex:
+            tableName: orders
+            indexName: idx_orders_order_date
+            columns:
+              - column:
+                  name: order_date
+        - createIndex:
+            tableName: orders
+            indexName: idx_orders_order_number
+            columns:
+              - column:
+                  name: order_number
+        - createIndex:
+            tableName: orders
+            indexName: idx_orders_status_date
+            columns:
+              - column:
+                  name: status
+              - column:
+                  name: order_date
+        
+        # Order items table indexes
+        - createIndex:
+            tableName: order_items
+            indexName: idx_order_items_order_product
+            columns:
+              - column:
+                  name: order_id
+              - column:
+                  name: product_id
+        - createIndex:
+            tableName: order_items
+            indexName: idx_order_items_product_id
+            columns:
+              - column:
+                  name: product_id
+      rollback:
+        - dropIndex:
+            tableName: users
+            indexName: idx_users_email_active
+        - dropIndex:
+            tableName: users
+            indexName: idx_users_created_at
+        - dropIndex:
+            tableName: users
+            indexName: idx_users_last_login
+        - dropIndex:
+            tableName: products
+            indexName: idx_products_sku_active
+        - dropIndex:
+            tableName: products
+            indexName: idx_products_name
+        - dropIndex:
+            tableName: products
+            indexName: idx_products_category_active
+        - dropIndex:
+            tableName: products
+            indexName: idx_products_price_range
+        - dropIndex:
+            tableName: orders
+            indexName: idx_orders_user_status
+        - dropIndex:
+            tableName: orders
+            indexName: idx_orders_order_date
+        - dropIndex:
+            tableName: orders
+            indexName: idx_orders_order_number
+        - dropIndex:
+            tableName: orders
+            indexName: idx_orders_status_date
+        - dropIndex:
+            tableName: order_items
+            indexName: idx_order_items_order_product
+        - dropIndex:
+            tableName: order_items
+            indexName: idx_order_items_product_id
