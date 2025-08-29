@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: 1
-      author: animesh
+      author: john-doe
       comment: Create items table
       changes:
         - createTable:
@@ -27,7 +27,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 2
-      author: animesh
+      author: john-doe
       comment: Add index on name column for better query performance
       changes:
         - createIndex:
