@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1761731617343-1
+      author: Animesh Pathak
+      comment: Create user table with name and email columns
+      labels: schema-change
+      changes:
+        - createTable:
+            tableName: user
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: "Full Name"
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: createdAt
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updatedAt
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            tableName: user
