@@ -1,2 +1,3 @@
+
 [flyway]
-defaultSchema = "dbops_animesh"
+defaultSchema = "dbo_bikram"
