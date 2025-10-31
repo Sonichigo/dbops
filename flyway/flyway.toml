@@ -1,0 +1,2 @@
+[flyway]
+defaultSchema = "dbops_animesh"
