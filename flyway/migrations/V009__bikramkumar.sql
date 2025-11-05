@@ -1,6 +1,0 @@
-
-CREATE TABLE table_9 (
-    id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
-    name VARCHAR(50) NOT NULL,
-    description VARCHAR(50),
-);

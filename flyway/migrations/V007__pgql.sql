@@ -1,0 +1,6 @@
+
+CREATE TABLE table_7 (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    description VARCHAR(50)
+);
