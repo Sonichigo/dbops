@@ -1,9 +1,13 @@
 databaseChangeLog:
+
+  # ──────────────────────────────────────────────────────────────
+  # Changeset 1: Create product table (expanded schema)
+  # ──────────────────────────────────────────────────────────────
   - changeSet:
       id: product-table-v2
       author: sonichigo
-      labels: products-api 
-      comment: Creating product table for REST API
+      labels: products-api
+      comment: Creating product table for REST API with expanded columns
       changes:
         - createTable:
             tableName: product
@@ -14,8 +18,22 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
               - column:
+                  name: sku
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
                   name: name
                   type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: category
+                  type: VARCHAR(80)
                   constraints:
                     nullable: false
               - column:
@@ -24,9 +42,31 @@ databaseChangeLog:
                   defaultValue: 0.00
                   constraints:
                     nullable: false
+              - column:
+                  name: stock_quantity
+                  type: INTEGER
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_available
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: NOW()
       rollback:
         - dropTable:
             tableName: product
+
+  # ──────────────────────────────────────────────────────────────
+  # Changeset 2: Add indexes
+  # ──────────────────────────────────────────────────────────────
   - changeSet:
       id: product-table-indexes-v2
       author: sonichigo
@@ -39,10 +79,41 @@ databaseChangeLog:
               - column:
                   name: name
             indexName: idx_products_name
+        - createIndex:
+            tableName: product
+            columns:
+              - column:
+                  name: category
+            indexName: idx_products_category
+        - createIndex:
+            tableName: product
+            columns:
+              - column:
+                  name: sku
+            indexName: idx_products_sku
+        - createIndex:
+            tableName: product
+            columns:
+              - column:
+                  name: is_available
+            indexName: idx_products_is_available
       rollback:
         - dropIndex:
             indexName: idx_products_name
             tableName: product
+        - dropIndex:
+            indexName: idx_products_category
+            tableName: product
+        - dropIndex:
+            indexName: idx_products_sku
+            tableName: product
+        - dropIndex:
+            indexName: idx_products_is_available
+            tableName: product
+
+  # ──────────────────────────────────────────────────────────────
+  # Changeset 3: Dev/Staging/QA — initial sample data
+  # ──────────────────────────────────────────────────────────────
   - changeSet:
       id: product-sample-data-initial
       author: sonichigo
@@ -54,24 +125,58 @@ databaseChangeLog:
             tableName: product
             columns:
               - column:
+                  name: sku
+                  value: "ELEC-WBH-001"
+              - column:
                   name: name
                   value: "Wireless Bluetooth Headphones"
               - column:
+                  name: description
+                  value: "Over-ear wireless headphones with 30hr battery life and foldable design."
+              - column:
+                  name: category
+                  value: "Audio"
+              - column:
                   name: price
                   value: 89.99
+              - column:
+                  name: stock_quantity
+                  valueNumeric: 150
+              - column:
+                  name: is_available
+                  valueBoolean: true
         - insert:
             tableName: product
             columns:
               - column:
+                  name: sku
+                  value: "CABL-UCC-002"
+              - column:
                   name: name
                   value: "USB-C Charging Cable"
               - column:
+                  name: description
+                  value: "3-ft braided USB-C to USB-C cable supporting 100W fast charging."
+              - column:
+                  name: category
+                  value: "Cables & Adapters"
+              - column:
                   name: price
                   value: 15.99
+              - column:
+                  name: stock_quantity
+                  valueNumeric: 500
+              - column:
+                  name: is_available
+                  valueBoolean: true
       rollback:
         - delete:
             tableName: product
-            where: name in ('Wireless Bluetooth Headphones', 'USB-C Charging Cable')
+            where: sku in ('ELEC-WBH-001', 'CABL-UCC-002')
+
+  # ──────────────────────────────────────────────────────────────
+  # Changeset 4: Dev/Staging/QA — electronics sample data
+  # ──────────────────────────────────────────────────────────────
   - changeSet:
       id: product-sample-data-electronics
       author: sonichigo
@@ -83,24 +188,58 @@ databaseChangeLog:
             tableName: product
             columns:
               - column:
+                  name: sku
+                  value: "ACCS-SMC-003"
+              - column:
                   name: name
                   value: "Smartphone Case"
               - column:
+                  name: description
+                  value: "Shockproof silicone case compatible with most 6.1-inch smartphones."
+              - column:
+                  name: category
+                  value: "Phone Accessories"
+              - column:
                   name: price
                   value: 24.99
+              - column:
+                  name: stock_quantity
+                  valueNumeric: 320
+              - column:
+                  name: is_available
+                  valueBoolean: true
         - insert:
             tableName: product
             columns:
               - column:
+                  name: sku
+                  value: "ELEC-PPB-004"
+              - column:
                   name: name
                   value: "Portable Power Bank"
               - column:
+                  name: description
+                  value: "20,000 mAh dual-port power bank with LED charge indicator."
+              - column:
+                  name: category
+                  value: "Charging"
+              - column:
                   name: price
                   value: 45.00
+              - column:
+                  name: stock_quantity
+                  valueNumeric: 210
+              - column:
+                  name: is_available
+                  valueBoolean: true
       rollback:
         - delete:
             tableName: product
-            where: name in ('Smartphone Case', 'Portable Power Bank')
+            where: sku in ('ACCS-SMC-003', 'ELEC-PPB-004')
+
+  # ──────────────────────────────────────────────────────────────
+  # Changeset 5: Dev/Staging/QA — accessories sample data
+  # ──────────────────────────────────────────────────────────────
   - changeSet:
       id: product-sample-data-accessories
       author: sonichigo
@@ -112,24 +251,58 @@ databaseChangeLog:
             tableName: product
             columns:
               - column:
+                  name: sku
+                  value: "ACCS-WMP-005"
+              - column:
                   name: name
                   value: "Wireless Mouse Pad"
               - column:
+                  name: description
+                  value: "XL extended desk pad with non-slip rubber base, 900x400mm."
+              - column:
+                  name: category
+                  value: "Desk Accessories"
+              - column:
                   name: price
                   value: 12.50
+              - column:
+                  name: stock_quantity
+                  valueNumeric: 400
+              - column:
+                  name: is_available
+                  valueBoolean: true
         - insert:
             tableName: product
             columns:
               - column:
+                  name: sku
+                  value: "ACCS-ELS-006"
+              - column:
                   name: name
                   value: "Ergonomic Laptop Stand"
               - column:
+                  name: description
+                  value: "Adjustable aluminium laptop stand with 6 height settings, supports up to 17-inch laptops."
+              - column:
+                  name: category
+                  value: "Desk Accessories"
+              - column:
                   name: price
                   value: 65.99
+              - column:
+                  name: stock_quantity
+                  valueNumeric: 175
+              - column:
+                  name: is_available
+                  valueBoolean: true
       rollback:
         - delete:
             tableName: product
-            where: name in ('Wireless Mouse Pad', 'Ergonomic Laptop Stand')
+            where: sku in ('ACCS-WMP-005', 'ACCS-ELS-006')
+
+  # ──────────────────────────────────────────────────────────────
+  # Changeset 6: Production (NA + APJ) — initial catalog
+  # ──────────────────────────────────────────────────────────────
   - changeSet:
       id: product-production-data-initial
       author: sonichigo
@@ -141,51 +314,130 @@ databaseChangeLog:
             tableName: product
             columns:
               - column:
+                  name: sku
+                  value: "PRO-PWH-101"
+              - column:
                   name: name
                   value: "Professional Wireless Headset"
               - column:
+                  name: description
+                  value: "Business-grade wireless headset with active noise cancellation and 40hr battery."
+              - column:
+                  name: category
+                  value: "Audio"
+              - column:
                   name: price
                   value: 149.99
+              - column:
+                  name: stock_quantity
+                  valueNumeric: 300
+              - column:
+                  name: is_available
+                  valueBoolean: true
         - insert:
             tableName: product
             columns:
+              - column:
+                  name: sku
+                  value: "PRO-UCH-102"
               - column:
                   name: name
                   value: "Premium USB-C Hub"
               - column:
+                  name: description
+                  value: "7-in-1 USB-C hub with 4K HDMI, 100W PD, SD card reader, and 3x USB-A ports."
+              - column:
+                  name: category
+                  value: "Cables & Adapters"
+              - column:
                   name: price
                   value: 79.99
+              - column:
+                  name: stock_quantity
+                  valueNumeric: 220
+              - column:
+                  name: is_available
+                  valueBoolean: true
         - insert:
             tableName: product
             columns:
+              - column:
+                  name: sku
+                  value: "PRO-BLS-103"
               - column:
                   name: name
                   value: "Business Laptop Sleeve"
               - column:
+                  name: description
+                  value: "Water-resistant neoprene sleeve for 15-inch laptops with accessory pocket."
+              - column:
+                  name: category
+                  value: "Bags & Cases"
+              - column:
                   name: price
                   value: 39.99
+              - column:
+                  name: stock_quantity
+                  valueNumeric: 450
+              - column:
+                  name: is_available
+                  valueBoolean: true
         - insert:
             tableName: product
             columns:
+              - column:
+                  name: sku
+                  value: "PRO-SSD-104"
               - column:
                   name: name
                   value: "High-Speed External SSD"
               - column:
+                  name: description
+                  value: "1TB portable NVMe SSD with USB 3.2 Gen2 and up to 1050 MB/s read speed."
+              - column:
+                  name: category
+                  value: "Storage"
+              - column:
                   name: price
                   value: 199.99
+              - column:
+                  name: stock_quantity
+                  valueNumeric: 130
+              - column:
+                  name: is_available
+                  valueBoolean: true
         - insert:
             tableName: product
             columns:
               - column:
+                  name: sku
+                  value: "PRO-WPR-105"
+              - column:
                   name: name
                   value: "Wireless Presentation Remote"
               - column:
+                  name: description
+                  value: "Plug-and-play USB receiver clicker with laser pointer and 100ft range."
+              - column:
+                  name: category
+                  value: "Presentation Tools"
+              - column:
                   name: price
                   value: 49.99
+              - column:
+                  name: stock_quantity
+                  valueNumeric: 280
+              - column:
+                  name: is_available
+                  valueBoolean: true
       rollback:
         - delete:
             tableName: product
-            where: name in ('Professional Wireless Headset', 'Premium USB-C Hub', 'Business Laptop Sleeve', 'High-Speed External SSD', 'Wireless Presentation Remote')
+            where: sku in ('PRO-PWH-101', 'PRO-UCH-102', 'PRO-BLS-103', 'PRO-SSD-104', 'PRO-WPR-105')
+
+  # ──────────────────────────────────────────────────────────────
+  # Changeset 7: Production (NA + APJ) — enterprise catalog
+  # ──────────────────────────────────────────────────────────────
   - changeSet:
       id: product-production-data-enterprise
       author: sonichigo
@@ -197,48 +449,123 @@ databaseChangeLog:
             tableName: product
             columns:
               - column:
+                  name: sku
+                  value: "ENT-DKS-201"
+              - column:
                   name: name
                   value: "Enterprise Docking Station"
               - column:
+                  name: description
+                  value: "Thunderbolt 4 dock with dual 4K display support, 96W charging, and Ethernet."
+              - column:
+                  name: category
+                  value: "Docking & Connectivity"
+              - column:
                   name: price
                   value: 299.99
+              - column:
+                  name: stock_quantity
+                  valueNumeric: 90
+              - column:
+                  name: is_available
+                  valueBoolean: true
         - insert:
             tableName: product
             columns:
+              - column:
+                  name: sku
+                  value: "ENT-4KW-202"
               - column:
                   name: name
                   value: "4K Webcam with Auto-Focus"
               - column:
+                  name: description
+                  value: "Sony sensor 4K webcam with AI-powered auto-framing and HDR support."
+              - column:
+                  name: category
+                  value: "Video Conferencing"
+              - column:
                   name: price
                   value: 189.99
+              - column:
+                  name: stock_quantity
+                  valueNumeric: 115
+              - column:
+                  name: is_available
+                  valueBoolean: true
         - insert:
             tableName: product
             columns:
+              - column:
+                  name: sku
+                  value: "ENT-NCM-203"
               - column:
                   name: name
                   value: "Noise-Cancelling Conference Microphone"
               - column:
+                  name: description
+                  value: "360-degree omnidirectional mic with AI noise suppression for rooms up to 20 people."
+              - column:
+                  name: category
+                  value: "Audio"
+              - column:
                   name: price
                   value: 249.99
+              - column:
+                  name: stock_quantity
+                  valueNumeric: 75
+              - column:
+                  name: is_available
+                  valueBoolean: true
         - insert:
             tableName: product
             columns:
+              - column:
+                  name: sku
+                  value: "ENT-EMK-204"
               - column:
                   name: name
                   value: "Ergonomic Mechanical Keyboard"
               - column:
+                  name: description
+                  value: "Tenkeyless mechanical keyboard with Cherry MX Red switches and included wrist rest."
+              - column:
+                  name: category
+                  value: "Input Devices"
+              - column:
                   name: price
                   value: 129.99
+              - column:
+                  name: stock_quantity
+                  valueNumeric: 200
+              - column:
+                  name: is_available
+                  valueBoolean: true
         - insert:
             tableName: product
             columns:
               - column:
+                  name: sku
+                  value: "ENT-PMS-205"
+              - column:
                   name: name
                   value: "Professional Monitor Stand"
               - column:
+                  name: description
+                  value: "Steel dual-arm monitor stand supporting up to 32-inch displays with full articulation."
+              - column:
+                  name: category
+                  value: "Desk Accessories"
+              - column:
                   name: price
                   value: 89.99
+              - column:
+                  name: stock_quantity
+                  valueNumeric: 160
+              - column:
+                  name: is_available
+                  valueBoolean: true
       rollback:
         - delete:
             tableName: product
-            where: name in ('Enterprise Docking Station', '4K Webcam with Auto-Focus', 'Noise-Cancelling Conference Microphone', 'Ergonomic Mechanical Keyboard', 'Professional Monitor Stand')
+            where: sku in ('ENT-DKS-201', 'ENT-4KW-202', 'ENT-NCM-203', 'ENT-EMK-204', 'ENT-PMS-205')
