@@ -295,12 +295,6 @@ This project is licensed under the **Apache License 2.0** - see the [LICENSE](LI
 
 ---
 
-## 🔍 Keywords
-
-**Database Migration Examples** | **Liquibase Changelog** | **Flyway Migration** | **Database DevOps** | **Harness Database DevOps** | **Schema Management** | **PostgreSQL Migration** | **MongoDB Migration** | **AWS RDS** | **Database Version Control** | **CI/CD Database** | **Changelog Templates** | **Schema Evolution** | **Database Automation** | **Migration Best Practices** | **SQL Migration Examples** | **NoSQL Migration** | **Database Rollback** | **Multi-Environment Database** | **Cloud Database Migration** | **DevOps Examples** | **Database CI/CD** | **GitOps Database** | **Database Governance** | **Database Pipeline** | **Automated Database Deployment** | **Database Change Management** | **Enterprise Database DevOps**
-
----
-
 ## 📖 Additional Resources
 
 - **Blog Posts**:
