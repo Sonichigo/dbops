@@ -1,10 +1,8 @@
 <!--
-  Harness Database DevOps - MongoDB Native Execution (Simplified)
+  MongoDB Standard Extension - Compatible with OSS and Harness
 
-  Demonstrates Harness-exclusive features without complex JavaScript:
-  1. mongo change type - Inline MongoDB JavaScript (Harness only)
-  2. mongoFile change type - External script execution (Harness only)
-  3. Standard runCommand - Works in both OSS and Harness
+  This changelog uses standard MongoDB extension change types that work
+  with both the open-source extension and Harness DBOps extension.
   -->
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
@@ -13,50 +11,61 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <!-- HARNESS EXCLUSIVE: Create collection with mongo change type -->
-    <changeSet id="harness-simple-1" author="harness">
-        <comment>HARNESS ONLY: Create collection using mongo change type</comment>
-        <ext:mongo>
-            <ext:mongo>
-                db.createCollection('harness_products');
-                db.harness_products.createIndex({ productId: 1 }, { unique: true });
-                print('Created harness_products collection with index');
-            </ext:mongo>
-        </ext:mongo>
+    <!-- Create collection -->
+    <changeSet id="standard-1" author="harness">
+        <comment>Create collection using standard change type</comment>
+        <ext:createCollection collectionName="harness_products"/>
     </changeSet>
 
-    <!-- HARNESS EXCLUSIVE: Insert with mongo change type -->
-    <changeSet id="harness-simple-2" author="harness">
-        <comment>HARNESS ONLY: Insert documents using mongo change type</comment>
-        <ext:mongo>
-            <ext:mongo>
-                db.harness_products.insertMany([
-                    { productId: 'PROD-001', name: 'Widget', price: 29.99, inStock: true },
-                    { productId: 'PROD-002', name: 'Gadget', price: 49.99, inStock: true },
-                    { productId: 'PROD-003', name: 'Doohickey', price: 19.99, inStock: false }
-                ]);
-                print('Inserted 3 products');
-            </ext:mongo>
-        </ext:mongo>
+    <!-- Create unique index -->
+    <changeSet id="standard-2" author="harness">
+        <comment>Create unique index on productId</comment>
+        <ext:createIndex collectionName="harness_products">
+            <ext:keys>
+                { productId: 1 }
+            </ext:keys>
+            <ext:options>
+                { unique: true, name: "idx_product_id" }
+            </ext:options>
+        </ext:createIndex>
     </changeSet>
 
-    <!-- HARNESS EXCLUSIVE: Update with mongo change type -->
-    <changeSet id="harness-simple-3" author="harness">
-        <comment>HARNESS ONLY: Update using mongo change type</comment>
-        <ext:mongo>
-            <ext:mongo>
-                db.harness_products.updateMany(
-                    { inStock: false },
-                    { $set: { status: 'discontinued' } }
-                );
-                print('Updated out-of-stock products');
-            </ext:mongo>
-        </ext:mongo>
+    <!-- Insert documents -->
+    <changeSet id="standard-3" author="harness">
+        <comment>Insert products using standard insertMany</comment>
+        <ext:insertMany collectionName="harness_products">
+            <ext:documents>
+                [
+                    { "productId": "PROD-001", "name": "Widget", "price": 29.99, "inStock": true },
+                    { "productId": "PROD-002", "name": "Gadget", "price": 49.99, "inStock": true },
+                    { "productId": "PROD-003", "name": "Doohickey", "price": 19.99, "inStock": false }
+                ]
+            </ext:documents>
+        </ext:insertMany>
     </changeSet>
 
-    <!-- Standard change type - Works in both OSS and Harness -->
-    <changeSet id="harness-simple-4" author="harness">
-        <comment>Standard runCommand - Works in both OSS and Harness</comment>
+    <!-- Update documents using runCommand -->
+    <changeSet id="standard-4" author="harness">
+        <comment>Update out-of-stock products</comment>
+        <ext:runCommand>
+            <ext:command>
+                {
+                    "update": "harness_products",
+                    "updates": [
+                        {
+                            "q": { "inStock": false },
+                            "u": { "$set": { "status": "discontinued" } },
+                            "multi": true
+                        }
+                    ]
+                }
+            </ext:command>
+        </ext:runCommand>
+    </changeSet>
+
+    <!-- Create compound index -->
+    <changeSet id="standard-5" author="harness">
+        <comment>Create compound index on name and price</comment>
         <ext:runCommand>
             <ext:command>
                 {
