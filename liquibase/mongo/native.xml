@@ -54,16 +54,8 @@
         </ext:mongo>
     </changeSet>
 
-    <!-- HARNESS EXCLUSIVE: External script with mongoFile -->
-    <changeSet id="harness-simple-4" author="harness">
-        <comment>HARNESS ONLY: Execute external script with mongoFile</comment>
-        <ext:mongoFile>
-            <ext:path>scripts/create_analytics_collection.js</ext:path>
-        </ext:mongoFile>
-    </changeSet>
-
     <!-- Standard change type - Works in both OSS and Harness -->
-    <changeSet id="harness-simple-5" author="harness">
+    <changeSet id="harness-simple-4" author="harness">
         <comment>Standard runCommand - Works in both OSS and Harness</comment>
         <ext:runCommand>
             <ext:command>
