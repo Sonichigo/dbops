@@ -1,0 +1,132 @@
+<!--
+  Harness Database DevOps - MongoDB Native Execution
+
+  Demonstrates Harness-exclusive 'mongo' change type for native JavaScript execution.
+  This version excludes mongoFile to avoid file path issues in Pipeline.
+  -->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!-- HARNESS EXCLUSIVE: Create collection with validation schema -->
+    <changeSet id="harness-1" author="harness">
+        <comment>HARNESS ONLY: Create collection using mongo change type with validation</comment>
+        <ext:mongo>
+            <ext:mongo>
+                db.createCollection('products', {
+                    validator: {
+                        $jsonSchema: {
+                            bsonType: 'object',
+                            required: ['productId', 'name', 'price'],
+                            properties: {
+                                productId: { bsonType: 'string' },
+                                name: { bsonType: 'string' },
+                                price: { bsonType: 'double', minimum: 0 },
+                                inStock: { bsonType: 'bool' }
+                            }
+                        }
+                    },
+                    validationAction: 'error'
+                });
+                print('Created products collection with validation schema');
+            </ext:mongo>
+        </ext:mongo>
+    </changeSet>
+
+    <!-- HARNESS EXCLUSIVE: Create compound index -->
+    <changeSet id="harness-2" author="harness">
+        <comment>HARNESS ONLY: Create compound index using mongo change type</comment>
+        <ext:mongo>
+            <ext:mongo>
+                db.products.createIndex(
+                    { productId: 1 },
+                    { unique: true, name: 'idx_product_id' }
+                );
+                db.products.createIndex(
+                    { name: 1, price: -1 },
+                    { name: 'idx_name_price' }
+                );
+                print('Created indexes on products collection');
+            </ext:mongo>
+        </ext:mongo>
+    </changeSet>
+
+    <!-- HARNESS EXCLUSIVE: Bulk insert with native insertMany -->
+    <changeSet id="harness-3" author="harness">
+        <comment>HARNESS ONLY: Insert multiple documents using mongo change type</comment>
+        <ext:mongo>
+            <ext:mongo>
+                db.products.insertMany([
+                    { productId: 'PROD-001', name: 'Widget', price: 29.99, inStock: true },
+                    { productId: 'PROD-002', name: 'Gadget', price: 49.99, inStock: true },
+                    { productId: 'PROD-003', name: 'Doohickey', price: 19.99, inStock: false },
+                    { productId: 'PROD-004', name: 'Thingamajig', price: 39.99, inStock: true }
+                ]);
+                print('Inserted 4 products');
+            </ext:mongo>
+        </ext:mongo>
+    </changeSet>
+
+    <!-- HARNESS EXCLUSIVE: Conditional update with native updateMany -->
+    <changeSet id="harness-4" author="harness">
+        <comment>HARNESS ONLY: Update documents using mongo change type</comment>
+        <ext:mongo>
+            <ext:mongo>
+                db.products.updateMany(
+                    { inStock: false },
+                    { $set: { status: 'discontinued', updatedAt: new Date() } }
+                );
+                print('Updated out-of-stock products');
+            </ext:mongo>
+        </ext:mongo>
+    </changeSet>
+
+    <!-- HARNESS EXCLUSIVE: Aggregation pipeline -->
+    <changeSet id="harness-5" author="harness">
+        <comment>HARNESS ONLY: Create summary using aggregation with mongo change type</comment>
+        <ext:mongo>
+            <ext:mongo>
+                db.products.aggregate([
+                    {
+                        $group: {
+                            _id: '$inStock',
+                            count: { $sum: 1 },
+                            avgPrice: { $avg: '$price' },
+                            totalValue: { $sum: '$price' }
+                        }
+                    },
+                    {
+                        $merge: {
+                            into: 'product_summary',
+                            whenMatched: 'replace',
+                            whenNotMatched: 'insert'
+                        }
+                    }
+                ]);
+                print('Created product_summary collection with aggregated data');
+            </ext:mongo>
+        </ext:mongo>
+    </changeSet>
+
+    <!-- Standard change type - Works in both OSS and Harness -->
+    <changeSet id="harness-6" author="harness">
+        <comment>Standard runCommand - Works in both OSS and Harness extensions</comment>
+        <ext:runCommand>
+            <ext:command>
+                {
+                    "createIndexes": "product_summary",
+                    "indexes": [
+                        {
+                            "key": { "_id": 1 },
+                            "name": "idx_summary_id"
+                        }
+                    ]
+                }
+            </ext:command>
+        </ext:runCommand>
+    </changeSet>
+
+</databaseChangeLog>
