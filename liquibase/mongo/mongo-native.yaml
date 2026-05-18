@@ -1,0 +1,185 @@
+databaseChangeLog:
+  - changeSet:
+      id: harness-1
+      author: harness
+      runWith: mongosh
+      comment: Create person collection using native mongosh JavaScript - HARNESS ONLY
+      mongo:
+        script: |
+          // Native MongoDB JavaScript execution
+          db.createCollection("person", {
+             validator: {
+                $jsonSchema: {
+                   bsonType: "object",
+                   required: ["name", "address"],
+                   properties: {
+                      name: {
+                         bsonType: "string",
+                         description: "The Name"
+                      },
+                      address: {
+                         bsonType: "string",
+                         description: "The Address"
+                      },
+                      age: {
+                         bsonType: "int",
+                         description: "The Age"
+                      }
+                   }
+                }
+             },
+             validationAction: "error",
+             validationLevel: "strict"
+          });
+
+          print("Collection 'person' created with validation schema");
+      rollback:
+        mongosh:
+          script: |
+            db.person.drop();
+            print("Collection 'person' dropped");
+
+  - changeSet:
+      id: harness-2
+      author: harness
+      runWith: mongosh
+      comment: Create unique index using mongosh - HARNESS ONLY
+      mongo:
+        script: |
+          // Create unique index on name field
+          db.person.createIndex(
+              { name: 1 },
+              { unique: true, name: "idx_person_name" }
+          );
+
+          print("Created unique index 'idx_person_name' on person.name");
+      rollback:
+        mongosh:
+          script: |
+            db.person.dropIndex("idx_person_name");
+            print("Dropped index 'idx_person_name'");
+
+  - changeSet:
+      id: harness-3
+      author: harness
+      runWith: mongosh
+      comment: Insert documents using mongosh insertMany - HARNESS ONLY
+      mongo:
+        script: |
+          // Insert multiple documents using native insertMany
+          const result = db.person.insertMany([
+              { name: "Joe Smith", address: "USA", age: 35 },
+              { name: "Maria Garcia", address: "Spain", age: 28 },
+              { name: "Yuki Tanaka", address: "Japan", age: 42 }
+          ]);
+
+          print(`Inserted ${result.insertedIds.length} documents`);
+      rollback:
+        mongosh:
+          script: |
+            const result = db.person.deleteMany({
+                name: { $in: ["Joe Smith", "Maria Garcia", "Yuki Tanaka"] }
+            });
+            print(`Deleted ${result.deletedCount} documents`);
+
+  - changeSet:
+      id: harness-4
+      author: harness
+      runWith: mongosh
+      comment: Bulk update using mongosh updateMany - HARNESS ONLY
+      mongo:
+        script: |
+          // Update all people over 40 years old
+          const result = db.person.updateMany(
+              { age: { $gt: 40 } },
+              { $set: { address: "Senior Village" } }
+          );
+
+          print(`Modified ${result.modifiedCount} documents`);
+      rollback:
+        mongosh:
+          script: |
+            const result = db.person.updateMany(
+                { age: { $gt: 40 } },
+                { $set: { address: "Japan" } }
+            );
+            print(`Reverted ${result.modifiedCount} documents`);
+
+  - changeSet:
+      id: harness-5
+      author: harness
+      runWith: mongosh
+      comment: Aggregation pipeline with computed fields - HARNESS ONLY
+      mongo:
+        script: |
+          // Add age group classification using aggregation
+          db.person.aggregate([
+              {
+                  $addFields: {
+                      ageGroup: {
+                          $switch: {
+                              branches: [
+                                  { case: { $lt: ["$age", 30] }, then: "young" },
+                                  { case: { $lt: ["$age", 50] }, then: "middle" }
+                              ],
+                              default: "senior"
+                          }
+                      }
+                  }
+              },
+              {
+                  $merge: {
+                      into: "person",
+                      whenMatched: "merge"
+                  }
+              }
+          ]);
+
+          print("Added ageGroup field to all person documents");
+      rollback:
+        mongosh:
+          script: |
+            const result = db.person.updateMany(
+                {},
+                { $unset: { ageGroup: "" } }
+            );
+            print(`Removed ageGroup from ${result.modifiedCount} documents`);
+
+  - changeSet:
+      id: harness-6
+      author: harness
+      runWith: mongosh
+      comment: Delete documents using mongosh deleteMany - HARNESS ONLY
+      mongo:
+        script: |
+          // Delete all people under 30
+          const result = db.person.deleteMany({ age: { $lt: 30 } });
+          print(`Deleted ${result.deletedCount} documents with age < 30`);
+      rollback:
+        note: Cannot rollback deletions without backup
+
+  - changeSet:
+      id: harness-7
+      author: harness
+      runWith: mongosh
+      comment: Execute external MongoDB script - HARNESS ONLY mongoFile feature
+      mongoFile:
+        path: scripts/create_analytics_collection.js
+
+  - changeSet:
+      id: harness-8
+      author: harness
+      comment: Standard runCommand - Works in both OSS and Harness extensions
+      runCommand:
+        command:
+          createIndexes: person
+          indexes:
+            - key:
+                address: 1
+                age: -1
+              name: idx_address_age
+      rollback:
+        runCommand:
+          command:
+            dropIndexes: person
+            index: idx_address_age
