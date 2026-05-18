@@ -3,82 +3,203 @@
 
   This changelog uses standard MongoDB extension change types that work
   with both the open-source extension and Harness DBOps extension.
-  -->
+-->
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
-        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <!-- Create collection -->
     <changeSet id="standard-1" author="harness">
         <comment>Create collection using standard change type</comment>
-        <ext:createCollection collectionName="harness_products"/>
+
+        <changes>
+            <ext:createCollection collectionName="harness_products"/>
+        </changes>
+
+        <rollback>
+            <changes>
+                <ext:dropCollection collectionName="harness_products"/>
+            </changes>
+        </rollback>
     </changeSet>
 
     <!-- Create unique index -->
     <changeSet id="standard-2" author="harness">
         <comment>Create unique index on productId</comment>
-        <ext:createIndex collectionName="harness_products">
-            <ext:keys>
-                { productId: 1 }
-            </ext:keys>
-            <ext:options>
-                { unique: true, name: "idx_product_id" }
-            </ext:options>
-        </ext:createIndex>
+
+        <changes>
+            <ext:createIndex collectionName="harness_products">
+                <ext:keys>
+                    { "productId": 1 }
+                </ext:keys>
+                <ext:options>
+                    { "unique": true, "name": "idx_product_id" }
+                </ext:options>
+            </ext:createIndex>
+        </changes>
+
+        <rollback>
+            <changes>
+                <ext:runCommand>
+                    <ext:command>
+                        {
+                            "dropIndexes": "harness_products",
+                            "index": "idx_product_id"
+                        }
+                    </ext:command>
+                </ext:runCommand>
+            </changes>
+        </rollback>
     </changeSet>
 
     <!-- Insert documents -->
     <changeSet id="standard-3" author="harness">
         <comment>Insert products using standard insertMany</comment>
-        <ext:insertMany collectionName="harness_products">
-            <ext:documents>
-                [
-                    { "productId": "PROD-001", "name": "Widget", "price": 29.99, "inStock": true },
-                    { "productId": "PROD-002", "name": "Gadget", "price": 49.99, "inStock": true },
-                    { "productId": "PROD-003", "name": "Doohickey", "price": 19.99, "inStock": false }
-                ]
-            </ext:documents>
-        </ext:insertMany>
+
+        <changes>
+            <ext:insertMany collectionName="harness_products">
+                <ext:documents>
+                    [
+                        {
+                            "productId": "PROD-001",
+                            "name": "Widget",
+                            "price": 29.99,
+                            "inStock": true
+                        },
+                        {
+                            "productId": "PROD-002",
+                            "name": "Gadget",
+                            "price": 49.99,
+                            "inStock": true
+                        },
+                        {
+                            "productId": "PROD-003",
+                            "name": "Doohickey",
+                            "price": 19.99,
+                            "inStock": false
+                        }
+                    ]
+                </ext:documents>
+            </ext:insertMany>
+        </changes>
+
+        <rollback>
+            <changes>
+                <ext:runCommand>
+                    <ext:command>
+                        {
+                            "delete": "harness_products",
+                            "deletes": [
+                                {
+                                    "q": {
+                                        "productId": {
+                                            "$in": [
+                                                "PROD-001",
+                                                "PROD-002",
+                                                "PROD-003"
+                                            ]
+                                        }
+                                    },
+                                    "limit": 0
+                                }
+                            ]
+                        }
+                    </ext:command>
+                </ext:runCommand>
+            </changes>
+        </rollback>
     </changeSet>
 
     <!-- Update documents using runCommand -->
     <changeSet id="standard-4" author="harness">
         <comment>Update out-of-stock products</comment>
-        <ext:runCommand>
-            <ext:command>
-                {
-                    "update": "harness_products",
-                    "updates": [
+
+        <changes>
+            <ext:runCommand>
+                <ext:command>
+                    {
+                        "update": "harness_products",
+                        "updates": [
+                            {
+                                "q": { "inStock": false },
+                                "u": {
+                                    "$set": {
+                                        "status": "discontinued"
+                                    }
+                                },
+                                "multi": true
+                            }
+                        ]
+                    }
+                </ext:command>
+            </ext:runCommand>
+        </changes>
+
+        <rollback>
+            <changes>
+                <ext:runCommand>
+                    <ext:command>
                         {
-                            "q": { "inStock": false },
-                            "u": { "$set": { "status": "discontinued" } },
-                            "multi": true
+                            "update": "harness_products",
+                            "updates": [
+                                {
+                                    "q": { "status": "discontinued" },
+                                    "u": {
+                                        "$unset": {
+                                            "status": ""
+                                        }
+                                    },
+                                    "multi": true
+                                }
+                            ]
                         }
-                    ]
-                }
-            </ext:command>
-        </ext:runCommand>
+                    </ext:command>
+                </ext:runCommand>
+            </changes>
+        </rollback>
     </changeSet>
 
     <!-- Create compound index -->
     <changeSet id="standard-5" author="harness">
         <comment>Create compound index on name and price</comment>
-        <ext:runCommand>
-            <ext:command>
-                {
-                    "createIndexes": "harness_products",
-                    "indexes": [
+
+        <changes>
+            <ext:runCommand>
+                <ext:command>
+                    {
+                        "createIndexes": "harness_products",
+                        "indexes": [
+                            {
+                                "key": {
+                                    "name": 1,
+                                    "price": -1
+                                },
+                                "name": "idx_name_price"
+                            }
+                        ]
+                    }
+                </ext:command>
+            </ext:runCommand>
+        </changes>
+
+        <rollback>
+            <changes>
+                <ext:runCommand>
+                    <ext:command>
                         {
-                            "key": { "name": 1, "price": -1 },
-                            "name": "idx_name_price"
+                            "dropIndexes": "harness_products",
+                            "index": "idx_name_price"
                         }
-                    ]
-                }
-            </ext:command>
-        </ext:runCommand>
+                    </ext:command>
+                </ext:runCommand>
+            </changes>
+        </rollback>
     </changeSet>
 
 </databaseChangeLog>
