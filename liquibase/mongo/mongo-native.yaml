@@ -5,7 +5,7 @@ databaseChangeLog:
       runWith: mongosh
       comment: Create person collection using native mongosh JavaScript - HARNESS ONLY
       mongo:
-        script: |
+        mongo: |
           // Native MongoDB JavaScript execution
           db.createCollection("person", {
              validator: {
@@ -35,7 +35,7 @@ databaseChangeLog:
           print("Collection 'person' created with validation schema");
       rollback:
         mongosh:
-          script: |
+          mongo: |
             db.person.drop();
             print("Collection 'person' dropped");
 
@@ -45,7 +45,7 @@ databaseChangeLog:
       runWith: mongosh
       comment: Create unique index using mongosh - HARNESS ONLY
       mongo:
-        script: |
+        mongo: |
           // Create unique index on name field
           db.person.createIndex(
               { name: 1 },
@@ -55,7 +55,7 @@ databaseChangeLog:
           print("Created unique index 'idx_person_name' on person.name");
       rollback:
         mongosh:
-          script: |
+          mongo: |
             db.person.dropIndex("idx_person_name");
             print("Dropped index 'idx_person_name'");
 
@@ -65,7 +65,7 @@ databaseChangeLog:
       runWith: mongosh
       comment: Insert documents using mongosh insertMany - HARNESS ONLY
       mongo:
-        script: |
+        mongo: |
           // Insert multiple documents using native insertMany
           const result = db.person.insertMany([
               { name: "Joe Smith", address: "USA", age: 35 },
@@ -76,7 +76,7 @@ databaseChangeLog:
           print(`Inserted ${result.insertedIds.length} documents`);
       rollback:
         mongosh:
-          script: |
+          mongo: |
             const result = db.person.deleteMany({
                 name: { $in: ["Joe Smith", "Maria Garcia", "Yuki Tanaka"] }
             });
@@ -88,7 +88,7 @@ databaseChangeLog:
       runWith: mongosh
       comment: Bulk update using mongosh updateMany - HARNESS ONLY
       mongo:
-        script: |
+        mongo: |
           // Update all people over 40 years old
           const result = db.person.updateMany(
               { age: { $gt: 40 } },
@@ -98,7 +98,7 @@ databaseChangeLog:
           print(`Modified ${result.modifiedCount} documents`);
       rollback:
         mongosh:
-          script: |
+          mongo: |
             const result = db.person.updateMany(
                 { age: { $gt: 40 } },
                 { $set: { address: "Japan" } }
@@ -111,7 +111,7 @@ databaseChangeLog:
       runWith: mongosh
       comment: Aggregation pipeline with computed fields - HARNESS ONLY
       mongo:
-        script: |
+        mongo: |
           // Add age group classification using aggregation
           db.person.aggregate([
               {
@@ -138,7 +138,7 @@ databaseChangeLog:
           print("Added ageGroup field to all person documents");
       rollback:
         mongosh:
-          script: |
+          mongo: |
             const result = db.person.updateMany(
                 {},
                 { $unset: { ageGroup: "" } }
@@ -151,7 +151,7 @@ databaseChangeLog:
       runWith: mongosh
       comment: Delete documents using mongosh deleteMany - HARNESS ONLY
       mongo:
-        script: |
+        mongo: |
           // Delete all people under 30
           const result = db.person.deleteMany({ age: { $lt: 30 } });
           print(`Deleted ${result.deletedCount} documents with age < 30`);
