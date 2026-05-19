@@ -391,8 +391,13 @@ databaseChangeLog:
             tableName: orders
 
   # ── Spanner (Google SQL) ────────────────────────────────────
-  # Uses INTERLEAVE IN PARENT for co-locating child rows
-  # with parent for efficient joins.
+  # NOTE: INTERLEAVE IN PARENT requires the child PK to start
+  # with the parent's PK column name (i.e. 'id'). Since we use
+  # 'user_id' here for clarity, we use a foreign key instead.
+  #
+  # To use INTERLEAVE, rename user_id → id and set:
+  #   ) PRIMARY KEY (id, order_id),
+  #     INTERLEAVE IN PARENT users ON DELETE CASCADE;
   - changeSet:
       id: 002-create-orders
       author: platform-team
@@ -406,8 +411,8 @@ databaseChangeLog:
         - sql:
             sql: |
               CREATE TABLE orders (
-                  user_id      INT64       NOT NULL,
                   order_id     INT64       NOT NULL,
+                  user_id      INT64       NOT NULL,
                   order_ref    STRING(64)  NOT NULL,
                   status       STRING(32)  NOT NULL DEFAULT ('pending'),
                   total_amount NUMERIC,
@@ -415,9 +420,10 @@ databaseChangeLog:
                   line_items   JSON,
                   created_at   TIMESTAMP   NOT NULL OPTIONS (allow_commit_timestamp = true),
                   updated_at   TIMESTAMP   NOT NULL OPTIONS (allow_commit_timestamp = true),
-              ) PRIMARY KEY (user_id, order_id),
-                INTERLEAVE IN PARENT users ON DELETE CASCADE;
+                  CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id),
+              ) PRIMARY KEY (order_id);
 
+              CREATE INDEX idx_orders_user_id          ON orders(user_id);
               CREATE UNIQUE INDEX idx_orders_order_ref ON orders(order_ref);
               CREATE INDEX idx_orders_status           ON orders(status);
       rollback:
@@ -587,8 +593,9 @@ databaseChangeLog:
               CREATE INDEX idx_audit_actor  ON audit_log(actor_id);
 
               -- TTL: auto-delete rows older than 365 days
+              -- NOTE: Use ADD for new policies; SET is for replacing existing ones.
               ALTER TABLE audit_log
-                  SET ROW DELETION POLICY (OLDER_THAN(recorded_at, INTERVAL 365 DAY));
+                  ADD ROW DELETION POLICY (OLDER_THAN(recorded_at, INTERVAL 365 DAY));
       rollback:
         - sql:
             sql: DROP TABLE audit_log;
@@ -619,15 +626,11 @@ databaseChangeLog:
                   changes      JSONB,
                   recorded_at  TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
                   PRIMARY KEY (id)
-              );
+              ) TTL INTERVAL '365 days' ON recorded_at;
 
               CREATE INDEX idx_audit_entity ON audit_log(entity_type, entity_id);
               CREATE INDEX idx_audit_actor  ON audit_log(actor_id);
               CREATE INDEX idx_audit_time   ON audit_log(recorded_at);
-
-              -- TTL policy (Spanner PG dialect)
-              ALTER TABLE audit_log
-                  SET TTL INTERVAL '365 days' ON recorded_at;
       rollback:
         - sql:
             sql: |
@@ -743,6 +746,8 @@ databaseChangeLog:
             columnName: phone_number
 
   # ── BigQuery ────────────────────────────────────────────────
+  # IMPORTANT: BigQuery only allows adding NULLABLE columns to
+  # existing tables. You CANNOT add NOT NULL (REQUIRED) columns.
   - changeSet:
       id: 004-add-user-phone
       author: platform-team
@@ -757,7 +762,7 @@ databaseChangeLog:
                 columnName: phone_number
       changes:
         - sql:
-            sql: ALTER TABLE users ADD COLUMN phone_number STRING;
+            sql: ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_number STRING;
       rollback:
         - sql:
-            sql: ALTER TABLE users DROP COLUMN phone_number;
+            sql: ALTER TABLE users DROP COLUMN IF EXISTS phone_number;
