@@ -1,0 +1,763 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  GCP Multi-Database Liquibase Changelog (YAML)                 ║
+# ║                                                                ║
+# ║  Context Filters:                                              ║
+# ║    • bigquery         → Google BigQuery                        ║
+# ║    • cloudsql-pg      → Cloud SQL for PostgreSQL               ║
+# ║    • spanner-gsql     → Cloud Spanner (Google SQL dialect)     ║
+# ║    • spanner-pg       → Cloud Spanner (PostgreSQL dialect)     ║
+# ║                                                                ║
+# ║  Usage:                                                        ║
+# ║    liquibase update --contexts=cloudsql-pg                     ║
+# ║    liquibase update --contexts=spanner-gsql                    ║
+# ║                                                                ║
+# ║  Required Extensions:                                          ║
+# ║    • liquibase-bigquery  (for BigQuery)                        ║
+# ║    • liquibase-spanner   (for Cloud Spanner)                   ║
+# ║    • PostgreSQL JDBC     (for Cloud SQL)                       ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+databaseChangeLog:
+
+  # ============================================================
+  #  PROPERTY DEFINITIONS (per-context defaults)
+  # ============================================================
+
+  # -- CloudSQL (PostgreSQL) --
+  - property:
+      name: id.type
+      value: BIGSERIAL
+      context: cloudsql-pg
+  - property:
+      name: uuid.type
+      value: UUID
+      context: cloudsql-pg
+  - property:
+      name: datetime.type
+      value: TIMESTAMPTZ
+      context: cloudsql-pg
+  - property:
+      name: text.type
+      value: TEXT
+      context: cloudsql-pg
+  - property:
+      name: json.type
+      value: JSONB
+      context: cloudsql-pg
+  - property:
+      name: bool.type
+      value: BOOLEAN
+      context: cloudsql-pg
+
+  # -- Spanner (Google SQL) --
+  - property:
+      name: id.type
+      value: INT64
+      context: spanner-gsql
+  - property:
+      name: uuid.type
+      value: STRING(36)
+      context: spanner-gsql
+  - property:
+      name: datetime.type
+      value: TIMESTAMP
+      context: spanner-gsql
+  - property:
+      name: text.type
+      value: STRING(MAX)
+      context: spanner-gsql
+  - property:
+      name: json.type
+      value: JSON
+      context: spanner-gsql
+  - property:
+      name: bool.type
+      value: BOOL
+      context: spanner-gsql
+
+  # -- Spanner (PostgreSQL dialect) --
+  - property:
+      name: id.type
+      value: BIGINT
+      context: spanner-pg
+  - property:
+      name: uuid.type
+      value: VARCHAR(36)
+      context: spanner-pg
+  - property:
+      name: datetime.type
+      value: TIMESTAMPTZ
+      context: spanner-pg
+  - property:
+      name: text.type
+      value: TEXT
+      context: spanner-pg
+  - property:
+      name: json.type
+      value: JSONB
+      context: spanner-pg
+  - property:
+      name: bool.type
+      value: BOOLEAN
+      context: spanner-pg
+
+  # -- BigQuery --
+  - property:
+      name: id.type
+      value: INT64
+      context: bigquery
+  - property:
+      name: uuid.type
+      value: STRING
+      context: bigquery
+  - property:
+      name: datetime.type
+      value: TIMESTAMP
+      context: bigquery
+  - property:
+      name: text.type
+      value: STRING
+      context: bigquery
+  - property:
+      name: json.type
+      value: JSON
+      context: bigquery
+  - property:
+      name: bool.type
+      value: BOOL
+      context: bigquery
+
+
+  # ============================================================
+  #  1. USERS TABLE
+  # ============================================================
+
+  # ── Cloud SQL (PostgreSQL) ──────────────────────────────────
+  - changeSet:
+      id: 001-create-users
+      author: platform-team
+      context: cloudsql-pg
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: users
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: ${id.type}
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: external_id
+                  type: ${uuid.type}
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: email
+                  type: VARCHAR(320)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: display_name
+                  type: VARCHAR(255)
+              - column:
+                  name: metadata
+                  type: ${json.type}
+              - column:
+                  name: is_active
+                  type: ${bool.type}
+                  defaultValueBoolean: true
+              - column:
+                  name: created_at
+                  type: ${datetime.type}
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: ${datetime.type}
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+        - createIndex:
+            indexName: idx_users_email
+            tableName: users
+            columns:
+              - column:
+                  name: email
+        - createIndex:
+            indexName: idx_users_external_id
+            tableName: users
+            columns:
+              - column:
+                  name: external_id
+      rollback:
+        - dropTable:
+            tableName: users
+
+  # ── Spanner (Google SQL) ────────────────────────────────────
+  # No auto-increment; use application-generated UUIDs or
+  # bit-reversed sequences. Primary keys declared inline.
+  - changeSet:
+      id: 001-create-users
+      author: platform-team
+      context: spanner-gsql
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: users
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE users (
+                  id           INT64 NOT NULL,
+                  external_id  STRING(36)   NOT NULL,
+                  email        STRING(320)  NOT NULL,
+                  display_name STRING(255),
+                  metadata     JSON,
+                  is_active    BOOL DEFAULT (true),
+                  created_at   TIMESTAMP    NOT NULL OPTIONS (allow_commit_timestamp = true),
+                  updated_at   TIMESTAMP    NOT NULL OPTIONS (allow_commit_timestamp = true),
+              ) PRIMARY KEY (id);
+
+              CREATE UNIQUE INDEX idx_users_email       ON users(email);
+              CREATE UNIQUE INDEX idx_users_external_id ON users(external_id);
+      rollback:
+        - sql:
+            sql: DROP TABLE users;
+
+  # ── Spanner (PostgreSQL dialect) ────────────────────────────
+  # Supports PG syntax but with Spanner semantics. Uses
+  # BIT_REVERSED_POSITIVE sequences instead of SERIAL.
+  - changeSet:
+      id: 001-create-users
+      author: platform-team
+      context: spanner-pg
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: users
+      changes:
+        - sql:
+            sql: |
+              CREATE SEQUENCE IF NOT EXISTS users_id_seq
+                  BIT_REVERSED_POSITIVE
+                  START COUNTER WITH 1;
+
+              CREATE TABLE users (
+                  id           BIGINT DEFAULT nextval('users_id_seq') NOT NULL,
+                  external_id  VARCHAR(36)   NOT NULL,
+                  email        VARCHAR(320)  NOT NULL,
+                  display_name VARCHAR(255),
+                  metadata     JSONB,
+                  is_active    BOOLEAN DEFAULT true,
+                  created_at   TIMESTAMPTZ   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  updated_at   TIMESTAMPTZ   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  PRIMARY KEY (id)
+              );
+
+              CREATE UNIQUE INDEX idx_users_email       ON users(email);
+              CREATE UNIQUE INDEX idx_users_external_id ON users(external_id);
+      rollback:
+        - sql:
+            sql: |
+              DROP TABLE IF EXISTS users;
+              DROP SEQUENCE IF EXISTS users_id_seq;
+
+  # ── BigQuery ────────────────────────────────────────────────
+  # No primary keys or unique constraints.
+  # Partitioning & clustering used for performance.
+  - changeSet:
+      id: 001-create-users
+      author: platform-team
+      context: bigquery
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: users
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE IF NOT EXISTS users (
+                  id            INT64       NOT NULL,
+                  external_id   STRING      NOT NULL,
+                  email         STRING      NOT NULL,
+                  display_name  STRING,
+                  metadata      JSON,
+                  is_active     BOOL,
+                  created_at    TIMESTAMP   NOT NULL,
+                  updated_at    TIMESTAMP   NOT NULL
+              )
+              PARTITION BY DATE(created_at)
+              CLUSTER BY email, external_id
+              OPTIONS (
+                  description = 'Core users table',
+                  labels = [('managed_by', 'liquibase')]
+              );
+      rollback:
+        - sql:
+            sql: DROP TABLE IF EXISTS users;
+
+
+  # ============================================================
+  #  2. ORDERS TABLE
+  # ============================================================
+
+  # ── Cloud SQL (PostgreSQL) ──────────────────────────────────
+  - changeSet:
+      id: 002-create-orders
+      author: platform-team
+      context: cloudsql-pg
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: orders
+      changes:
+        - createTable:
+            tableName: orders
+            columns:
+              - column:
+                  name: id
+                  type: ${id.type}
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_orders_user
+                    references: users(id)
+              - column:
+                  name: order_ref
+                  type: VARCHAR(64)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: status
+                  type: VARCHAR(32)
+                  defaultValue: pending
+                  constraints:
+                    nullable: false
+              - column:
+                  name: total_amount
+                  type: NUMERIC(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: currency
+                  type: VARCHAR(3)
+                  defaultValue: USD
+              - column:
+                  name: line_items
+                  type: ${json.type}
+              - column:
+                  name: created_at
+                  type: ${datetime.type}
+                  defaultValueComputed: NOW()
+              - column:
+                  name: updated_at
+                  type: ${datetime.type}
+                  defaultValueComputed: NOW()
+        - createIndex:
+            indexName: idx_orders_user_id
+            tableName: orders
+            columns:
+              - column:
+                  name: user_id
+        - createIndex:
+            indexName: idx_orders_status
+            tableName: orders
+            columns:
+              - column:
+                  name: status
+      rollback:
+        - dropTable:
+            tableName: orders
+
+  # ── Spanner (Google SQL) ────────────────────────────────────
+  # Uses INTERLEAVE IN PARENT for co-locating child rows
+  # with parent for efficient joins.
+  - changeSet:
+      id: 002-create-orders
+      author: platform-team
+      context: spanner-gsql
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: orders
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE orders (
+                  user_id      INT64       NOT NULL,
+                  order_id     INT64       NOT NULL,
+                  order_ref    STRING(64)  NOT NULL,
+                  status       STRING(32)  NOT NULL DEFAULT ('pending'),
+                  total_amount NUMERIC,
+                  currency     STRING(3)   DEFAULT ('USD'),
+                  line_items   JSON,
+                  created_at   TIMESTAMP   NOT NULL OPTIONS (allow_commit_timestamp = true),
+                  updated_at   TIMESTAMP   NOT NULL OPTIONS (allow_commit_timestamp = true),
+              ) PRIMARY KEY (user_id, order_id),
+                INTERLEAVE IN PARENT users ON DELETE CASCADE;
+
+              CREATE UNIQUE INDEX idx_orders_order_ref ON orders(order_ref);
+              CREATE INDEX idx_orders_status           ON orders(status);
+      rollback:
+        - sql:
+            sql: DROP TABLE orders;
+
+  # ── Spanner (PostgreSQL dialect) ────────────────────────────
+  - changeSet:
+      id: 002-create-orders
+      author: platform-team
+      context: spanner-pg
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: orders
+      changes:
+        - sql:
+            sql: |
+              CREATE SEQUENCE IF NOT EXISTS orders_id_seq
+                  BIT_REVERSED_POSITIVE
+                  START COUNTER WITH 1;
+
+              CREATE TABLE orders (
+                  id            BIGINT DEFAULT nextval('orders_id_seq') NOT NULL,
+                  user_id       BIGINT       NOT NULL,
+                  order_ref     VARCHAR(64)  NOT NULL,
+                  status        VARCHAR(32)  NOT NULL DEFAULT 'pending',
+                  total_amount  NUMERIC(12,2) NOT NULL,
+                  currency      VARCHAR(3)   DEFAULT 'USD',
+                  line_items    JSONB,
+                  created_at    TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  updated_at    TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  PRIMARY KEY (id),
+                  CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id)
+              );
+
+              CREATE UNIQUE INDEX idx_orders_order_ref ON orders(order_ref);
+              CREATE INDEX idx_orders_user_id          ON orders(user_id);
+              CREATE INDEX idx_orders_status           ON orders(status);
+      rollback:
+        - sql:
+            sql: |
+              DROP TABLE IF EXISTS orders;
+              DROP SEQUENCE IF EXISTS orders_id_seq;
+
+  # ── BigQuery ────────────────────────────────────────────────
+  - changeSet:
+      id: 002-create-orders
+      author: platform-team
+      context: bigquery
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: orders
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE IF NOT EXISTS orders (
+                  id            INT64       NOT NULL,
+                  user_id       INT64       NOT NULL,
+                  order_ref     STRING      NOT NULL,
+                  status        STRING      NOT NULL,
+                  total_amount  NUMERIC,
+                  currency      STRING,
+                  line_items    JSON,
+                  created_at    TIMESTAMP   NOT NULL,
+                  updated_at    TIMESTAMP   NOT NULL
+              )
+              PARTITION BY DATE(created_at)
+              CLUSTER BY user_id, status
+              OPTIONS (
+                  description = 'Orders table',
+                  labels = [('managed_by', 'liquibase')]
+              );
+      rollback:
+        - sql:
+            sql: DROP TABLE IF EXISTS orders;
+
+
+  # ============================================================
+  #  3. AUDIT_LOG TABLE
+  # ============================================================
+
+  # ── Cloud SQL (PostgreSQL) ──────────────────────────────────
+  - changeSet:
+      id: 003-create-audit-log
+      author: platform-team
+      context: cloudsql-pg
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: audit_log
+      changes:
+        - createTable:
+            tableName: audit_log
+            columns:
+              - column:
+                  name: id
+                  type: ${id.type}
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: entity_type
+                  type: VARCHAR(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: entity_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: action
+                  type: VARCHAR(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: actor_id
+                  type: BIGINT
+              - column:
+                  name: changes
+                  type: ${json.type}
+              - column:
+                  name: recorded_at
+                  type: ${datetime.type}
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+        - sql:
+            sql: |
+              CREATE INDEX idx_audit_entity ON audit_log(entity_type, entity_id);
+              CREATE INDEX idx_audit_actor  ON audit_log(actor_id);
+              CREATE INDEX idx_audit_time   ON audit_log(recorded_at);
+      rollback:
+        - dropTable:
+            tableName: audit_log
+
+  # ── Spanner (Google SQL) ────────────────────────────────────
+  - changeSet:
+      id: 003-create-audit-log
+      author: platform-team
+      context: spanner-gsql
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: audit_log
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE audit_log (
+                  id           INT64        NOT NULL,
+                  entity_type  STRING(64)   NOT NULL,
+                  entity_id    INT64        NOT NULL,
+                  action       STRING(32)   NOT NULL,
+                  actor_id     INT64,
+                  changes      JSON,
+                  recorded_at  TIMESTAMP    NOT NULL OPTIONS (allow_commit_timestamp = true),
+              ) PRIMARY KEY (id);
+
+              CREATE INDEX idx_audit_entity ON audit_log(entity_type, entity_id);
+              CREATE INDEX idx_audit_actor  ON audit_log(actor_id);
+
+              -- TTL: auto-delete rows older than 365 days
+              ALTER TABLE audit_log
+                  SET ROW DELETION POLICY (OLDER_THAN(recorded_at, INTERVAL 365 DAY));
+      rollback:
+        - sql:
+            sql: DROP TABLE audit_log;
+
+  # ── Spanner (PostgreSQL dialect) ────────────────────────────
+  - changeSet:
+      id: 003-create-audit-log
+      author: platform-team
+      context: spanner-pg
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: audit_log
+      changes:
+        - sql:
+            sql: |
+              CREATE SEQUENCE IF NOT EXISTS audit_log_id_seq
+                  BIT_REVERSED_POSITIVE
+                  START COUNTER WITH 1;
+
+              CREATE TABLE audit_log (
+                  id           BIGINT DEFAULT nextval('audit_log_id_seq') NOT NULL,
+                  entity_type  VARCHAR(64)  NOT NULL,
+                  entity_id    BIGINT       NOT NULL,
+                  action       VARCHAR(32)  NOT NULL,
+                  actor_id     BIGINT,
+                  changes      JSONB,
+                  recorded_at  TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  PRIMARY KEY (id)
+              );
+
+              CREATE INDEX idx_audit_entity ON audit_log(entity_type, entity_id);
+              CREATE INDEX idx_audit_actor  ON audit_log(actor_id);
+              CREATE INDEX idx_audit_time   ON audit_log(recorded_at);
+
+              -- TTL policy (Spanner PG dialect)
+              ALTER TABLE audit_log
+                  SET TTL INTERVAL '365 days' ON recorded_at;
+      rollback:
+        - sql:
+            sql: |
+              DROP TABLE IF EXISTS audit_log;
+              DROP SEQUENCE IF EXISTS audit_log_id_seq;
+
+  # ── BigQuery ────────────────────────────────────────────────
+  - changeSet:
+      id: 003-create-audit-log
+      author: platform-team
+      context: bigquery
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: audit_log
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE IF NOT EXISTS audit_log (
+                  id           INT64       NOT NULL,
+                  entity_type  STRING      NOT NULL,
+                  entity_id    INT64       NOT NULL,
+                  action       STRING      NOT NULL,
+                  actor_id     INT64,
+                  changes      JSON,
+                  recorded_at  TIMESTAMP   NOT NULL
+              )
+              PARTITION BY DATE(recorded_at)
+              CLUSTER BY entity_type, entity_id
+              OPTIONS (
+                  description = 'Append-only audit trail',
+                  labels = [('managed_by', 'liquibase')],
+                  partition_expiration_days = 365
+              );
+      rollback:
+        - sql:
+            sql: DROP TABLE IF EXISTS audit_log;
+
+
+  # ============================================================
+  #  4. SCHEMA MIGRATION — ADD COLUMN (example alteration)
+  # ============================================================
+
+  # ── Cloud SQL (PostgreSQL) ──────────────────────────────────
+  - changeSet:
+      id: 004-add-user-phone
+      author: platform-team
+      context: cloudsql-pg
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: users
+        - not:
+            - columnExists:
+                tableName: users
+                columnName: phone_number
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: phone_number
+                  type: VARCHAR(20)
+      rollback:
+        - dropColumn:
+            tableName: users
+            columnName: phone_number
+
+  # ── Spanner (Google SQL) ────────────────────────────────────
+  - changeSet:
+      id: 004-add-user-phone
+      author: platform-team
+      context: spanner-gsql
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: users
+        - not:
+            - columnExists:
+                tableName: users
+                columnName: phone_number
+      changes:
+        - sql:
+            sql: ALTER TABLE users ADD COLUMN phone_number STRING(20);
+      rollback:
+        - sql:
+            sql: ALTER TABLE users DROP COLUMN phone_number;
+
+  # ── Spanner (PostgreSQL dialect) ────────────────────────────
+  - changeSet:
+      id: 004-add-user-phone
+      author: platform-team
+      context: spanner-pg
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: users
+        - not:
+            - columnExists:
+                tableName: users
+                columnName: phone_number
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: phone_number
+                  type: VARCHAR(20)
+      rollback:
+        - dropColumn:
+            tableName: users
+            columnName: phone_number
+
+  # ── BigQuery ────────────────────────────────────────────────
+  - changeSet:
+      id: 004-add-user-phone
+      author: platform-team
+      context: bigquery
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: users
+        - not:
+            - columnExists:
+                tableName: users
+                columnName: phone_number
+      changes:
+        - sql:
+            sql: ALTER TABLE users ADD COLUMN phone_number STRING;
+      rollback:
+        - sql:
+            sql: ALTER TABLE users DROP COLUMN phone_number;
