@@ -2,7 +2,7 @@ databaseChangeLog:
   - changeSet:
       id: product-table-v2
       author: sonichigo
-      context: dev
+      context: [dev,prod,prod1]
       labels: products-api 
       comment: Creating product table for REST API
       changes:
@@ -31,7 +31,7 @@ databaseChangeLog:
   - changeSet:
       id: product-table-indexes-v2
       author: sonichigo
-      context: dev
+      context: [dev,prod,prod1]
       labels: products-api
       comment: Adding indexes for the products table
       changes:
@@ -78,7 +78,7 @@ databaseChangeLog:
       id: product-sample-data-electronics
       author: sonichigo
       labels: products-api
-      context: dev
+      context: [dev,prod,prod1]
       comment: Inserting electronics sample data for development environment
       changes:
         - insert:
