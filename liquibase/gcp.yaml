@@ -229,7 +229,7 @@ databaseChangeLog:
                   updated_at   TIMESTAMP    NOT NULL OPTIONS (allow_commit_timestamp = true),
               ) PRIMARY KEY (id);
 
-              CREATE UNIQUE INDEX idx_users_email       ON users(email);
+              CREATE UNIQUE INDEX idx_users       ON users(email);
               CREATE UNIQUE INDEX idx_users_external_id ON users(external_id);
       rollback:
         - sql:
