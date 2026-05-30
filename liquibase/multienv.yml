@@ -4,7 +4,7 @@ databaseChangeLog:
       id: my.poc:1
       author: my.poc
       labels: tag_1 
-      context: example-context
+      context: authoring
       comment: example comment
       changes:
         - createTable:
@@ -41,7 +41,7 @@ databaseChangeLog:
       id: my.poc:2
       author: my.poc
       labels: tag_2 
-      context: example-context
+      context: authoring
       comment: example comment
       changes:
         - createTable:
@@ -75,7 +75,7 @@ databaseChangeLog:
       id: my.poc:3
       author: my.poc
       labels: tag_3 
-      context: example-context
+      context: authoring
       comment: example comment
       changes:
         - addColumn:
@@ -93,7 +93,7 @@ databaseChangeLog:
       id: my.poc:4
       author: my.poc
       labels: example-label
-      context: example-context
+      context: authoring
       comment: example comment
       changes:
         - addColumn:
@@ -111,8 +111,7 @@ databaseChangeLog:
       id: my.poc:5
       author: my.poc
       labels: tag_4 
-      context: example-context
-      context: example-context
+      context: authoring
       comment: example comment
       changes:
         - addColumn:
@@ -130,7 +129,7 @@ databaseChangeLog:
       id: my.poc:6
       author: my.poc
       labels: tag_5 
-      context: example-context
+      context: authoring
       comment: example comment
       changes:
         - addColumn:
@@ -147,7 +146,7 @@ databaseChangeLog:
       id: my.poc:7
       author: my.poc
       labels: tag_6 
-      context: example-context
+      context: authoring
       comment: example comment
       changes:
         - addColumn:
@@ -163,7 +162,7 @@ databaseChangeLog:
   - changeSet:
       id: satwell:11
       author: satwell@harness.io
-      context: example-context
+      context: authoring
       comment: I really want another column 
       changes:
         - addColumn:
@@ -176,7 +175,7 @@ databaseChangeLog:
       id: my.poc:1000
       author: my.poc
       labels: tag_1 
-      context: example-context
+      context: authoring
       comment: example comment
       changes:
         - createTable:
@@ -205,7 +204,7 @@ databaseChangeLog:
   - changeSet:
       id: satwell:12
       author: satwell@harness.io
-      context: example-context
+      context: authoring
       comment: I really want another column 
       changes:
         - addColumn:
@@ -217,7 +216,7 @@ databaseChangeLog:
   - changeSet:
       id: satwell:13
       author: satwell@harness.io
-      context: example-context
+      context: authoring
       comment: I really want another column 
       changes:
         - addColumn:
@@ -229,7 +228,7 @@ databaseChangeLog:
   - changeSet:
       id: satwell:14
       author: satwell@harness.io
-      context: example-context
+      context: authoring
       comment: I really want another column 
       changes:
         - addColumn:
@@ -241,7 +240,7 @@ databaseChangeLog:
   - changeSet:
       id: satwell:15
       author: satwell@harness.io
-      context: example-context
+      context: authoring
       comment: I really want another column 
       changes:
         - addColumn:
@@ -254,7 +253,7 @@ databaseChangeLog:
       id: satwell:16
       author: my.poc
       labels: tag_1 
-      context: example-context
+      context: authoring
       comment: example comment
       changes:
         - createTable:
@@ -281,7 +280,7 @@ databaseChangeLog:
       id: satwell:17
       author: satwell
       labels: tag_1 
-      context: example-context
+      context: authoring
       comment: example comment
       changes:
         - createIndex:
@@ -294,7 +293,7 @@ databaseChangeLog:
       id: satwell:18
       author: satwell
       labels: tag_1 
-      context: example-context
+      context: authoring
       comment: example comment
       changes:
         - createIndex:
@@ -307,7 +306,7 @@ databaseChangeLog:
       id: satwell:19
       author: satwell
       labels: tag_1 
-      context: example-context
+      context: authoring
       comment: example comment
       changes:
         - addColumn:
@@ -339,7 +338,7 @@ databaseChangeLog:
       id: satwell:21
       author: satwell
       labels: tag_1 
-      context: example-context
+      context: authoring
       comment: example comment
       changes:
         - addColumn:
