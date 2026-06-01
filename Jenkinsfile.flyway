@@ -174,9 +174,9 @@ def check_naming_conventions(migrations_dir):
     errors = []
     warnings = []
 
-    # Note: Single backslash in regex - Python will handle it correctly
-    pattern = re.compile(r'^V(\d+(?:\.\d+)*)__[a-zA-Z0-9_]+\.sql$')
-    undo_pattern = re.compile(r'^U(\d+(?:\.\d+)*)__[a-zA-Z0-9_]+\.sql$')
+    # Regex patterns for migration file naming
+    pattern = re.compile('^V([0-9]+(?:\\.[0-9]+)*)__[a-zA-Z0-9_]+\\.sql$')
+    undo_pattern = re.compile('^U([0-9]+(?:\\.[0-9]+)*)__[a-zA-Z0-9_]+\\.sql$')
 
     if not os.path.exists(migrations_dir):
         errors.append(f"Migrations directory not found: {migrations_dir}")
@@ -226,12 +226,12 @@ def check_sql_quality(migrations_dir):
     errors = []
     warnings = []
 
-    # Note: Single backslash in regex - Python will handle it correctly
+    # SQL quality check patterns
     dangerous_patterns = {
-        'SELECT *': r'SELECT\s+\*\s+FROM',
-        'DROP TABLE without IF EXISTS': r'DROP\s+TABLE\s+(?!IF\s+EXISTS)[a-zA-Z0-9_]+',
-        'DELETE without WHERE': r'DELETE\s+FROM\s+\w+\s*(?!WHERE)',
-        'UPDATE without WHERE': r'UPDATE\s+\w+\s+SET\s+.*?(?!WHERE)',
+        'SELECT *': 'SELECT\\s+\\*\\s+FROM',
+        'DROP TABLE without IF EXISTS': 'DROP\\s+TABLE\\s+(?!IF\\s+EXISTS)[a-zA-Z0-9_]+',
+        'DELETE without WHERE': 'DELETE\\s+FROM\\s+\\w+\\s*(?!WHERE)',
+        'UPDATE without WHERE': 'UPDATE\\s+\\w+\\s+SET\\s+.*?(?!WHERE)',
     }
 
     for filename in os.listdir(migrations_dir):
@@ -294,12 +294,12 @@ def check_undo_migrations(migrations_dir):
 
     for filename in os.listdir(migrations_dir):
         if filename.startswith('V') and filename.endswith('.sql'):
-            match = re.match(r'V(\d+)__.*\.sql', filename)
+            match = re.match('V([0-9]+)__.*\\.sql', filename)
             if match:
                 versioned.add(match.group(1))
 
         elif filename.startswith('U') and filename.endswith('.sql'):
-            match = re.match(r'U(\d+)__.*\.sql', filename)
+            match = re.match('U([0-9]+)__.*\\.sql', filename)
             if match:
                 undo.add(match.group(1))
 
