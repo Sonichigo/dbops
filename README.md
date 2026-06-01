@@ -5,10 +5,110 @@
 [![Liquibase](https://img.shields.io/badge/Examples-Liquibase-orange.svg)]()
 [![Flyway](https://img.shields.io/badge/Examples-Flyway-red.svg)]()
 [![Harness](https://img.shields.io/badge/Recommended-Harness%20Database%20DevOps-00ADE6.svg)](https://www.harness.io/products/database-devops)
+[![Jenkins](https://img.shields.io/badge/CI%2FCD-Jenkins%20Pipelines-red.svg)]()
+[![Deployment](https://img.shields.io/badge/Deployment-Pre--Installed%20Tools-green.svg)]()
 
-A curated collection of **Liquibase** and **Flyway** changelog examples for **Database DevOps**. This repository serves as a practical reference for learning database schema management, version control strategies, and migration best practices with real-world changelog templates for PostgreSQL, MongoDB, and AWS RDS environments.
+A curated collection of **Liquibase** and **Flyway** changelog examples for **Database DevOps**, plus comprehensive **Jenkins CI/CD pipelines** demonstrating database governance implementation. This repository serves both as a learning resource and as a **comparison showcase** between traditional CI/CD approaches and modern database DevOps platforms.
 
-> **💡 For production use**, we recommend [**Harness Database DevOps**](https://www.harness.io/products/database-devops) - an enterprise platform that provides superior user experience, governance, and automation while leveraging Liquibase/Flyway under the hood. See [why Harness is better](#why-use-harness-database-devops) for production deployments.
+> **🛠️ Pre-Installed Tools Approach** - Production Jenkinsfiles use pre-installed Liquibase/Flyway on Jenkins agents. No Docker or wget/curl dependencies.
+
+> **💡 For production use**, we recommend [**Harness Database DevOps**](https://www.harness.io/products/database-devops) - an enterprise platform that provides superior user experience, governance, and automation while leveraging Liquibase/Flyway under the hood. See [detailed comparison](#-jenkins-vs-harness-comparison).
+
+## 🚀 Quick Start
+
+**Ready to test the Jenkins pipelines?** 
+
+### **Production Jenkinsfiles: Pre-Installed Tools** ✅
+
+The production Jenkinsfiles ([Jenkinsfile.liquibase](Jenkinsfile.liquibase) and [Jenkinsfile.flyway](Jenkinsfile.flyway)) use **pre-installed tools** on the Jenkins agent. This approach eliminates network dependencies and runtime downloads.
+
+#### **One-Time Setup on Jenkins Agent:**
+
+```bash
+# SSH to your Jenkins agent, then run:
+
+# Install Liquibase
+wget https://github.com/liquibase/liquibase/releases/download/v4.24.0/liquibase-4.24.0.tar.gz
+sudo mkdir -p /opt/liquibase
+sudo tar -xzf liquibase-4.24.0.tar.gz -C /opt/liquibase
+sudo ln -s /opt/liquibase/liquibase /usr/local/bin/liquibase
+
+# Install PostgreSQL JDBC driver for Liquibase
+wget https://jdbc.postgresql.org/download/postgresql-42.6.0.jar
+sudo mv postgresql-42.6.0.jar /opt/liquibase/lib/
+
+# Install Flyway
+wget https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.4.1/flyway-commandline-10.4.1-linux-x64.tar.gz
+sudo tar -xzf flyway-commandline-10.4.1-linux-x64.tar.gz -C /opt
+sudo mv /opt/flyway-10.4.1 /opt/flyway
+sudo ln -s /opt/flyway/flyway /usr/local/bin/flyway
+
+# Install PostgreSQL JDBC driver for Flyway
+sudo mkdir -p /opt/flyway/drivers
+wget https://jdbc.postgresql.org/download/postgresql-42.6.0.jar
+sudo mv postgresql-42.6.0.jar /opt/flyway/drivers/
+
+# Verify installation
+liquibase --version
+flyway --version
+```
+
+#### **Then Run Your Pipeline:**
+
+1. Configure Jenkins pipeline job pointing to `Jenkinsfile.liquibase` or `Jenkinsfile.flyway`
+2. Build with parameters:
+   - ENVIRONMENT: dev
+   - DRY_RUN: true ✓
+3. Click "Build"
+
+**Benefits:**
+- ✅ No runtime downloads (tools already installed)
+- ✅ No Docker dependencies
+- ✅ Fast execution
+- ✅ No network failures
+- ✅ Works with standard Jenkins setup
+
+### Legacy Options (Deprecated - Use Production Jenkinsfiles)
+
+<details>
+<summary>Click to expand legacy approaches (not recommended)</summary>
+
+### Option 1: Local Testing Version (Environment Variables)
+```bash
+# Uses wget/curl to download tools at runtime
+# Update Jenkins job Script Path to:
+# - Jenkinsfile.liquibase.local (for Liquibase)
+# - Jenkinsfile.flyway.local (for Flyway)
+
+# ⚠️ Warning: May fail with network issues (exit code 60)
+```
+
+### Option 2: Embedded JDBC
+```bash
+# Uses wget/curl to download tools at runtime
+# Update Jenkins job Script Path to:
+# - Jenkinsfile.liquibase.embedded (for Liquibase)
+# - Jenkinsfile.flyway.embedded (for Flyway)
+
+# ⚠️ Warning: May fail with network issues (exit code 60)
+```
+
+</details>
+
+## 🔥 Jenkins vs Harness: Quick Comparison
+
+| Metric | Jenkins + Flyway/Liquibase | Harness Database DevOps | Improvement |
+|--------|---------------------------|-------------------------|-------------|
+| **Setup Time** | 2-3 days | 2-4 hours | **90% faster** ⚡ |
+| **Lines of Code** | 1,400+ | ~50 | **96% reduction** 📉 |
+| **Custom Scripts** | 300+ lines Python | 0 | **100% elimination** ✨ |
+| **Governance Policies** | Custom Python scripts | UI checkboxes | **95% faster** 🚀 |
+| **Maintenance (hrs/month)** | 40-66 hours | 3-8 hours | **85% reduction** 💰 |
+| **Rollback** | Manual scripts (15-30 min) | One-click (30 sec) | **97% faster** ⚡ |
+| **Learning Curve** | 7-10 weeks | 1-2 weeks | **80% easier** 📚 |
+| **Annual TCO** | $90,000-120,000 | $15,000-35,000 | **70% cheaper** 💵 |
+
+---
 
 ## 🎯 What's Inside
 

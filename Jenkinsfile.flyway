@@ -2,19 +2,30 @@
 
 /**
  * ═══════════════════════════════════════════════════════════════
- *  PRODUCTION-READY Flyway Pipeline (Docker-based)
+ *  PRODUCTION-READY Flyway Pipeline
+ *  Uses PRE-INSTALLED Flyway on Jenkins Agent
  * ═══════════════════════════════════════════════════════════════
  *
- * Benefits of Docker approach:
- * ✅ No runtime downloads (wget/curl) - faster & more reliable
- * ✅ Consistent tool versions across all environments
- * ✅ Pre-built images with JDBC drivers included
- * ✅ Network isolation - no external dependencies during run
- * ✅ Easy version management via image tags
+ * Prerequisites:
+ * 1. Flyway installed on Jenkins agent (in PATH or specify location)
+ * 2. PostgreSQL JDBC driver in Flyway drivers directory
+ * 3. Python 3 installed
  *
- * Requirements:
- * - Docker installed on Jenkins agent
- * - Network access to Docker Hub (one-time image pull)
+ * Installation (one-time setup on Jenkins agent):
+ *   # Install Flyway
+ *   wget https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.4.1/flyway-commandline-10.4.1-linux-x64.tar.gz
+ *   sudo mkdir -p /opt/flyway
+ *   sudo tar -xzf flyway-commandline-10.4.1-linux-x64.tar.gz -C /opt
+ *   sudo mv /opt/flyway-10.4.1 /opt/flyway
+ *   sudo ln -s /opt/flyway/flyway /usr/local/bin/flyway
+ *
+ *   # Install PostgreSQL JDBC driver
+ *   wget https://jdbc.postgresql.org/download/postgresql-42.6.0.jar
+ *   sudo mkdir -p /opt/flyway/drivers
+ *   sudo mv postgresql-42.6.0.jar /opt/flyway/drivers/
+ *
+ * Verify installation:
+ *   flyway --version
  * ═══════════════════════════════════════════════════════════════
  */
 
@@ -56,13 +67,12 @@ pipeline {
 
     environment {
         // Flyway Configuration
-        FLYWAY_VERSION = '10.4.1'
         MIGRATIONS_DIR = 'flyway/migrations'
 
         // Database Connection (JDBC with embedded credentials)
         JDBC_URL = 'jdbc:postgresql://10.0.198.213:5432/Jenkins?user=user&password=password'
 
-        // Database details (for psql commands)
+        // Database details
         DB_HOST = '10.0.198.213'
         DB_PORT = '5432'
         DB_NAME = 'Jenkins'
@@ -77,17 +87,10 @@ pipeline {
 
     stages {
         stage('🔧 Setup & Verify') {
-            agent {
-                docker {
-                    image "flyway/flyway:${FLYWAY_VERSION}"
-                    args '-v $WORKSPACE:/flyway/sql --network host --entrypoint=""'
-                    reuseNode true
-                }
-            }
             steps {
                 script {
                     echo "═══════════════════════════════════════"
-                    echo "  DOCKER-BASED FLYWAY PIPELINE"
+                    echo "  FLYWAY PIPELINE"
                     echo "  Environment: ${params.ENVIRONMENT}"
                     echo "  Target: ${params.MIGRATION_TARGET}"
                     echo "  Dry Run: ${params.DRY_RUN}"
@@ -97,36 +100,53 @@ pipeline {
                 }
 
                 sh '''
-                    # Verify Flyway is available in container
+                    # Verify Flyway is installed
+                    if ! command -v flyway >/dev/null 2>&1; then
+                        echo "❌ Flyway not found in PATH"
+                        echo "Please install Flyway on Jenkins agent:"
+                        echo "  wget https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.4.1/flyway-commandline-10.4.1-linux-x64.tar.gz"
+                        echo "  sudo mkdir -p /opt/flyway"
+                        echo "  sudo tar -xzf flyway-commandline-10.4.1-linux-x64.tar.gz -C /opt"
+                        echo "  sudo mv /opt/flyway-10.4.1 /opt/flyway"
+                        echo "  sudo ln -s /opt/flyway/flyway /usr/local/bin/flyway"
+                        exit 1
+                    fi
+
+                    echo "✅ Flyway found:"
                     flyway --version
 
                     # Verify migrations directory exists
-                    if [ ! -d "/flyway/sql/${MIGRATIONS_DIR}" ]; then
+                    if [ ! -d "${MIGRATIONS_DIR}" ]; then
                         echo "❌ Migrations directory not found: ${MIGRATIONS_DIR}"
                         exit 1
                     fi
 
-                    MIGRATION_COUNT=$(find /flyway/sql/${MIGRATIONS_DIR} -name "V*.sql" -o -name "U*.sql" | wc -l)
+                    MIGRATION_COUNT=$(find ${MIGRATIONS_DIR} -name "V*.sql" -o -name "U*.sql" | wc -l)
                     echo "✅ Found ${MIGRATION_COUNT} migration files"
                 '''
             }
         }
 
         stage('🗄️ Database Check') {
-            agent any  // Run on host with psql client
             steps {
                 script {
                     echo "🔍 Checking database connectivity and creating if needed..."
                     sh '''
-                        # Check if database exists
-                        DB_EXISTS=$(PGPASSWORD=${DB_PASS} psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='${DB_NAME}'" 2>/dev/null || echo "")
-
-                        if [ -z "$DB_EXISTS" ]; then
-                            echo "⚠️  Database '${DB_NAME}' does not exist. Creating it now..."
-                            PGPASSWORD=${DB_PASS} psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d postgres -c "CREATE DATABASE \\"${DB_NAME}\\";" || echo "Database creation failed or already exists"
-                            echo "✅ Database '${DB_NAME}' created successfully"
+                        # Check if psql is available
+                        if ! command -v psql >/dev/null 2>&1; then
+                            echo "⚠️ psql not found, skipping database creation check"
+                            echo "If database doesn't exist, Flyway will fail at validation stage"
                         else
-                            echo "✅ Database '${DB_NAME}' already exists"
+                            # Check if database exists
+                            DB_EXISTS=$(PGPASSWORD=${DB_PASS} psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='${DB_NAME}'" 2>/dev/null || echo "")
+
+                            if [ -z "$DB_EXISTS" ]; then
+                                echo "⚠️  Database '${DB_NAME}' does not exist. Creating it now..."
+                                PGPASSWORD=${DB_PASS} psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d postgres -c "CREATE DATABASE \\"${DB_NAME}\\";" || echo "Database creation failed or already exists"
+                                echo "✅ Database '${DB_NAME}' created successfully"
+                            else
+                                echo "✅ Database '${DB_NAME}' already exists"
+                            fi
                         fi
                     '''
                 }
@@ -134,18 +154,18 @@ pipeline {
         }
 
         stage('🛡️ Governance Policy Checks') {
-            agent any  // Run on host for Python scripts
             when {
                 expression { params.SKIP_GOVERNANCE == false }
             }
 
-            parallel {
-                stage('Policy: Naming Convention') {
-                    steps {
-                        script {
-                            echo "🔍 Validating migration file naming conventions..."
-                            sh '''
-                                python3 << 'PYTHON_SCRIPT'
+            steps {
+                script {
+                    echo "Running governance policy checks..."
+
+                    // Naming Convention Check
+                    sh '''
+                        echo "🔍 Validating migration file naming conventions..."
+                        python3 << 'PYTHON_EOF'
 import os
 import re
 import sys
@@ -154,6 +174,7 @@ def check_naming_conventions(migrations_dir):
     errors = []
     warnings = []
 
+    # Note: Single backslash in regex - Python will handle it correctly
     pattern = re.compile(r'^V(\d+(?:\.\d+)*)__[a-zA-Z0-9_]+\.sql$')
     undo_pattern = re.compile(r'^U(\d+(?:\.\d+)*)__[a-zA-Z0-9_]+\.sql$')
 
@@ -190,18 +211,13 @@ if __name__ == '__main__':
     else:
         print("✅ All migration files follow naming conventions")
         sys.exit(0)
-PYTHON_SCRIPT
-                            '''
-                        }
-                    }
-                }
+PYTHON_EOF
+                    '''
 
-                stage('Policy: SQL Quality Checks') {
-                    steps {
-                        script {
-                            echo "🔍 Running SQL quality and security checks..."
-                            sh '''
-                                python3 << 'PYTHON_SCRIPT'
+                    // SQL Quality Checks
+                    sh '''
+                        echo "🔍 Running SQL quality and security checks..."
+                        python3 << 'PYTHON_EOF'
 import os
 import re
 import sys
@@ -210,6 +226,7 @@ def check_sql_quality(migrations_dir):
     errors = []
     warnings = []
 
+    # Note: Single backslash in regex - Python will handle it correctly
     dangerous_patterns = {
         'SELECT *': r'SELECT\s+\*\s+FROM',
         'DROP TABLE without IF EXISTS': r'DROP\s+TABLE\s+(?!IF\s+EXISTS)[a-zA-Z0-9_]+',
@@ -257,21 +274,15 @@ if __name__ == '__main__':
     else:
         print("✅ SQL quality checks passed")
         sys.exit(0)
-PYTHON_SCRIPT
-                            '''
-                        }
-                    }
-                }
+PYTHON_EOF
+                    '''
 
-                stage('Policy: Undo Migration Validation') {
-                    when {
-                        expression { params.ENVIRONMENT == 'production' && params.ENABLE_UNDO == true }
-                    }
-                    steps {
-                        script {
-                            echo "🔍 Validating undo migrations for production..."
+                    // Undo Migration Validation (only for production)
+                    script {
+                        if (params.ENVIRONMENT == 'production' && params.ENABLE_UNDO == true) {
                             sh '''
-                                python3 << 'PYTHON_SCRIPT'
+                                echo "🔍 Validating undo migrations for production..."
+                                python3 << 'PYTHON_EOF'
 import os
 import re
 import sys
@@ -312,7 +323,7 @@ if __name__ == '__main__':
     else:
         print("✅ All versioned migrations have corresponding undo scripts")
         sys.exit(0)
-PYTHON_SCRIPT
+PYTHON_EOF
                             '''
                         }
                     }
@@ -321,20 +332,13 @@ PYTHON_SCRIPT
         }
 
         stage('🔍 Flyway Info') {
-            agent {
-                docker {
-                    image "flyway/flyway:${FLYWAY_VERSION}"
-                    args '-v $WORKSPACE:/flyway/sql --network host --entrypoint=""'
-                    reuseNode true
-                }
-            }
             steps {
                 script {
                     echo "Getting migration status from Flyway..."
                     sh """
                         flyway \\
-                            -url="${JDBC_URL}" \\
-                            -locations="filesystem:/flyway/sql/${MIGRATIONS_DIR}" \\
+                            -url='${JDBC_URL}' \\
+                            -locations='filesystem:${WORKSPACE}/${MIGRATIONS_DIR}' \\
                             info > flyway-info.txt || echo "Info command completed"
 
                         cat flyway-info.txt || echo "No info available"
@@ -344,20 +348,13 @@ PYTHON_SCRIPT
         }
 
         stage('✅ Flyway Validate') {
-            agent {
-                docker {
-                    image "flyway/flyway:${FLYWAY_VERSION}"
-                    args '-v $WORKSPACE:/flyway/sql --network host --entrypoint=""'
-                    reuseNode true
-                }
-            }
             steps {
                 script {
                     echo "Validating applied migrations..."
                     sh """
                         flyway \\
-                            -url="${JDBC_URL}" \\
-                            -locations="filesystem:/flyway/sql/${MIGRATIONS_DIR}" \\
+                            -url='${JDBC_URL}' \\
+                            -locations='filesystem:${WORKSPACE}/${MIGRATIONS_DIR}' \\
                             validate || echo "⚠️  Validation failed - continuing for demo"
                     """
                 }
@@ -365,13 +362,6 @@ PYTHON_SCRIPT
         }
 
         stage('🔄 Dry Run (Generate SQL)') {
-            agent {
-                docker {
-                    image "flyway/flyway:${FLYWAY_VERSION}"
-                    args '-v $WORKSPACE:/flyway/sql --network host --entrypoint=""'
-                    reuseNode true
-                }
-            }
             when {
                 expression { params.DRY_RUN == true }
             }
@@ -384,8 +374,8 @@ PYTHON_SCRIPT
                         echo ""
 
                         flyway \\
-                            -url="${JDBC_URL}" \\
-                            -locations="filesystem:/flyway/sql/${MIGRATIONS_DIR}" \\
+                            -url='${JDBC_URL}' \\
+                            -locations='filesystem:${WORKSPACE}/${MIGRATIONS_DIR}' \\
                             info -pending > pending-migrations.txt || echo "Pending check completed"
 
                         cat pending-migrations.txt || echo "No pending migrations"
@@ -394,20 +384,13 @@ PYTHON_SCRIPT
                         echo "═══════════════════════════════════════"
                         echo "Migration file contents (first 20 lines each):"
                         echo "═══════════════════════════════════════"
-                        find /flyway/sql/${MIGRATIONS_DIR} -name "V*.sql" -exec echo "File: {}" \\; -exec head -20 {} \\; -exec echo "" \\; || echo "No migrations found"
+                        find ${MIGRATIONS_DIR} -name "V*.sql" -exec echo "File: {}" \\; -exec head -20 {} \\; -exec echo "" \\; || echo "No migrations found"
                     """
                 }
             }
         }
 
         stage('🚀 Execute Migration') {
-            agent {
-                docker {
-                    image "flyway/flyway:${FLYWAY_VERSION}"
-                    args '-v $WORKSPACE:/flyway/sql --network host --entrypoint=""'
-                    reuseNode true
-                }
-            }
             when {
                 expression { params.DRY_RUN == false }
             }
@@ -425,12 +408,12 @@ PYTHON_SCRIPT
 
                     def migrateCommand = """
                         flyway \\
-                            -url="${JDBC_URL}" \\
-                            -locations="filesystem:/flyway/sql/${MIGRATIONS_DIR}" \\
+                            -url='${JDBC_URL}' \\
+                            -locations='filesystem:${WORKSPACE}/${MIGRATIONS_DIR}' \\
                     """
 
                     if (params.MIGRATION_TARGET == 'specific_version' && params.TARGET_VERSION) {
-                        migrateCommand += " -target=\"${params.TARGET_VERSION}\""
+                        migrateCommand += " -target='${params.TARGET_VERSION}'"
                     }
 
                     migrateCommand += " migrate"
@@ -441,13 +424,6 @@ PYTHON_SCRIPT
         }
 
         stage('✅ Post-Migration Validation') {
-            agent {
-                docker {
-                    image "flyway/flyway:${FLYWAY_VERSION}"
-                    args '-v $WORKSPACE:/flyway/sql --network host --entrypoint=""'
-                    reuseNode true
-                }
-            }
             when {
                 expression { params.DRY_RUN == false }
             }
@@ -456,8 +432,8 @@ PYTHON_SCRIPT
                     echo "Running post-migration health checks..."
                     sh """
                         flyway \\
-                            -url="${JDBC_URL}" \\
-                            -locations="filesystem:/flyway/sql/${MIGRATIONS_DIR}" \\
+                            -url='${JDBC_URL}' \\
+                            -locations='filesystem:${WORKSPACE}/${MIGRATIONS_DIR}' \\
                             info | tee post-migration-info.txt || echo "Post-migration check completed"
 
                         echo "✅ Post-migration validation complete"

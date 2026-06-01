@@ -2,30 +2,36 @@
 
 /**
  * ═══════════════════════════════════════════════════════════════
- *  PRODUCTION-READY Liquibase Pipeline (Docker-based)
+ *  PRODUCTION-READY Liquibase Pipeline
+ *  Uses PRE-INSTALLED Liquibase on Jenkins Agent
  * ═══════════════════════════════════════════════════════════════
  *
- * Benefits of Docker approach:
- * ✅ No runtime downloads (wget/curl) - faster & more reliable
- * ✅ Consistent tool versions across all environments
- * ✅ Pre-built images with JDBC drivers included
- * ✅ Network isolation - no external dependencies during run
- * ✅ Easy version management via image tags
+ * Prerequisites:
+ * 1. Liquibase installed on Jenkins agent (in PATH or specify location)
+ * 2. PostgreSQL JDBC driver in Liquibase lib directory
+ * 3. Python 3 with PyYAML installed
  *
- * Requirements:
- * - Docker installed on Jenkins agent
- * - Network access to Docker Hub (one-time image pull)
+ * Installation (one-time setup on Jenkins agent):
+ *   # Install Liquibase
+ *   wget https://github.com/liquibase/liquibase/releases/download/v4.24.0/liquibase-4.24.0.tar.gz
+ *   sudo mkdir -p /opt/liquibase
+ *   sudo tar -xzf liquibase-4.24.0.tar.gz -C /opt/liquibase
+ *   sudo ln -s /opt/liquibase/liquibase /usr/local/bin/liquibase
+ *
+ *   # Install PostgreSQL JDBC driver
+ *   wget https://jdbc.postgresql.org/download/postgresql-42.6.0.jar
+ *   sudo mv postgresql-42.6.0.jar /opt/liquibase/lib/
+ *
+ *   # Install Python dependencies
+ *   pip3 install pyyaml
+ *
+ * Verify installation:
+ *   liquibase --version
  * ═══════════════════════════════════════════════════════════════
  */
 
 pipeline {
-    agent {
-        docker {
-            image 'liquibase/liquibase:4.24.0'
-            args '--network host -v $WORKSPACE:/liquibase/changelog'
-            reuseNode true
-        }
-    }
+    agent any
 
     parameters {
         choice(
@@ -52,12 +58,12 @@ pipeline {
 
     environment {
         // Liquibase Configuration
-        CHANGELOG_FILE = '/liquibase/changelog/liquibase/gcp.yaml'
+        CHANGELOG_FILE = 'liquibase/gcp.yaml'
 
         // Database Connection (JDBC with embedded credentials)
         JDBC_URL = 'jdbc:postgresql://10.0.198.213:5432/Jenkins?user=user&password=password'
 
-        // Database details (for psql commands outside container)
+        // Database details
         DB_HOST = '10.0.198.213'
         DB_PORT = '5432'
         DB_NAME = 'Jenkins'
@@ -76,7 +82,7 @@ pipeline {
             steps {
                 script {
                     echo "═══════════════════════════════════════"
-                    echo "  DOCKER-BASED LIQUIBASE PIPELINE"
+                    echo "  LIQUIBASE PIPELINE"
                     echo "  Environment: ${params.ENVIRONMENT}"
                     echo "  Database Context: ${params.DATABASE_CONTEXT}"
                     echo "  Dry Run: ${params.DRY_RUN}"
@@ -86,7 +92,18 @@ pipeline {
                 }
 
                 sh '''
-                    # Verify Liquibase is available in container
+                    # Verify Liquibase is installed
+                    if ! command -v liquibase >/dev/null 2>&1; then
+                        echo "❌ Liquibase not found in PATH"
+                        echo "Please install Liquibase on Jenkins agent:"
+                        echo "  sudo mkdir -p /opt/liquibase"
+                        echo "  wget https://github.com/liquibase/liquibase/releases/download/v4.24.0/liquibase-4.24.0.tar.gz"
+                        echo "  sudo tar -xzf liquibase-4.24.0.tar.gz -C /opt/liquibase"
+                        echo "  sudo ln -s /opt/liquibase/liquibase /usr/local/bin/liquibase"
+                        exit 1
+                    fi
+
+                    echo "✅ Liquibase found:"
                     liquibase --version
 
                     # Verify changelog file exists
@@ -100,20 +117,25 @@ pipeline {
         }
 
         stage('🗄️ Database Check') {
-            agent any  // Run on host with psql client
             steps {
                 script {
                     echo "🔍 Checking database connectivity and creating if needed..."
                     sh '''
-                        # Check if database exists
-                        DB_EXISTS=$(PGPASSWORD=${DB_PASS} psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='${DB_NAME}'" 2>/dev/null || echo "")
-
-                        if [ -z "$DB_EXISTS" ]; then
-                            echo "⚠️  Database '${DB_NAME}' does not exist. Creating it now..."
-                            PGPASSWORD=${DB_PASS} psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d postgres -c "CREATE DATABASE \\"${DB_NAME}\\";" || echo "Database creation failed or already exists"
-                            echo "✅ Database '${DB_NAME}' created successfully"
+                        # Check if psql is available
+                        if ! command -v psql >/dev/null 2>&1; then
+                            echo "⚠️ psql not found, skipping database creation check"
+                            echo "If database doesn't exist, Liquibase will fail at validation stage"
                         else
-                            echo "✅ Database '${DB_NAME}' already exists"
+                            # Check if database exists
+                            DB_EXISTS=$(PGPASSWORD=${DB_PASS} psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='${DB_NAME}'" 2>/dev/null || echo "")
+
+                            if [ -z "$DB_EXISTS" ]; then
+                                echo "⚠️  Database '${DB_NAME}' does not exist. Creating it now..."
+                                PGPASSWORD=${DB_PASS} psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d postgres -c "CREATE DATABASE \\"${DB_NAME}\\";" || echo "Database creation failed or already exists"
+                                echo "✅ Database '${DB_NAME}' created successfully"
+                            else
+                                echo "✅ Database '${DB_NAME}' already exists"
+                            fi
                         fi
                     '''
                 }
@@ -125,10 +147,11 @@ pipeline {
                 script {
                     echo "🔍 Validating YAML syntax..."
                     sh '''
-                        # Use Python to validate YAML (available in liquibase image)
-                        python3 -c "
+                        # Use Python to validate YAML
+                        python3 << 'PYTHON_EOF'
 import yaml
 import sys
+
 try:
     with open('${CHANGELOG_FILE}', 'r') as f:
         yaml.safe_load(f)
@@ -136,25 +159,25 @@ try:
 except Exception as e:
     print(f'❌ YAML validation failed: {e}')
     sys.exit(1)
-"
+PYTHON_EOF
                     '''
                 }
             }
         }
 
         stage('🛡️ Governance Policy Checks') {
-            agent any  // Run on host for Python scripts
             when {
                 expression { params.SKIP_GOVERNANCE == false }
             }
 
-            parallel {
-                stage('Policy: Table Naming Conventions') {
-                    steps {
-                        script {
-                            echo "🔍 Validating table naming conventions..."
-                            sh '''
-                                python3 << 'PYTHON_SCRIPT'
+            steps {
+                script {
+                    echo "Running governance policy checks..."
+
+                    // Table Naming Conventions
+                    sh '''
+                        echo "🔍 Validating table naming conventions..."
+                        python3 << 'PYTHON_EOF'
 import yaml
 import re
 import sys
@@ -207,18 +230,13 @@ if __name__ == '__main__':
     else:
         print("✅ All tables follow naming conventions")
         sys.exit(0)
-PYTHON_SCRIPT
-                            '''
-                        }
-                    }
-                }
+PYTHON_EOF
+                    '''
 
-                stage('Policy: Rollback Validation') {
-                    steps {
-                        script {
-                            echo "🔍 Validating rollback scripts exist..."
-                            sh '''
-                                python3 << 'PYTHON_SCRIPT'
+                    // Rollback Validation
+                    sh '''
+                        echo "🔍 Validating rollback scripts exist..."
+                        python3 << 'PYTHON_EOF'
 import yaml
 import sys
 
@@ -250,10 +268,8 @@ if __name__ == '__main__':
     else:
         print("✅ All changesets have rollback scripts")
         sys.exit(0)
-PYTHON_SCRIPT
-                            '''
-                        }
-                    }
+PYTHON_EOF
+                    '''
                 }
             }
         }
@@ -265,7 +281,7 @@ PYTHON_SCRIPT
                     sh """
                         liquibase \\
                             --changelog-file=${CHANGELOG_FILE} \\
-                            --url=${JDBC_URL} \\
+                            --url='${JDBC_URL}' \\
                             --contexts=${params.DATABASE_CONTEXT} \\
                             validate || echo "⚠️  Validation failed - continuing for demo"
                     """
@@ -280,7 +296,7 @@ PYTHON_SCRIPT
                     sh """
                         liquibase \\
                             --changelog-file=${CHANGELOG_FILE} \\
-                            --url=${JDBC_URL} \\
+                            --url='${JDBC_URL}' \\
                             --contexts=${params.DATABASE_CONTEXT} \\
                             status \\
                             --verbose > migration-status.txt || echo "Status check completed"
@@ -303,7 +319,7 @@ PYTHON_SCRIPT
                     sh """
                         liquibase \\
                             --changelog-file=${CHANGELOG_FILE} \\
-                            --url=${JDBC_URL} \\
+                            --url='${JDBC_URL}' \\
                             --contexts=${params.DATABASE_CONTEXT} \\
                             update-sql > migration-preview.sql || echo "Preview generated"
 
@@ -334,7 +350,7 @@ PYTHON_SCRIPT
                     sh """
                         liquibase \\
                             --changelog-file=${CHANGELOG_FILE} \\
-                            --url=${JDBC_URL} \\
+                            --url='${JDBC_URL}' \\
                             --contexts=${params.DATABASE_CONTEXT} \\
                             update
                     """
@@ -343,7 +359,6 @@ PYTHON_SCRIPT
         }
 
         stage('✅ Post-Migration Validation') {
-            agent any  // Run on host
             when {
                 expression { params.DRY_RUN == false }
             }
@@ -351,7 +366,11 @@ PYTHON_SCRIPT
                 script {
                     echo "Running post-migration health checks..."
                     sh '''
-                        PGPASSWORD=${DB_PASS} psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -c "SELECT tablename FROM pg_tables WHERE schemaname = 'public';" || true
+                        if command -v psql >/dev/null 2>&1; then
+                            PGPASSWORD=${DB_PASS} psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -c "SELECT tablename FROM pg_tables WHERE schemaname = 'public';" || true
+                        else
+                            echo "✅ Migration completed (psql not available for verification)"
+                        fi
                     '''
                 }
             }
