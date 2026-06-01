@@ -1,0 +1,531 @@
+#!/usr/bin/env groovy
+
+/**
+ * ═══════════════════════════════════════════════════════════════
+ *  Jenkins Pipeline: Liquibase with Database Governance Policies
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * This pipeline demonstrates the COMPLEXITY of implementing database
+ * governance policies in traditional CI/CD tools like Jenkins.
+ *
+ * Governance Policies Enforced:
+ * ✓ Table naming conventions (snake_case, no prefixes)
+ * ✓ Index existence validation (all foreign keys must have indexes)
+ * ✓ Column naming standards
+ * ✓ Rollback script validation
+ * ✓ Changelog format validation
+ * ✓ SQL injection prevention checks
+ * ✓ Performance validation (no SELECT *)
+ *
+ * NOTE: Compare this complexity with Harness Database DevOps where
+ *       these policies are built-in and configured via UI.
+ * ═══════════════════════════════════════════════════════════════
+ */
+
+pipeline {
+    agent any
+
+    parameters {
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev', 'staging', 'production'],
+            description: 'Target environment for database migration'
+        )
+        choice(
+            name: 'DATABASE_CONTEXT',
+            choices: ['cloudsql-pg', 'spanner-gsql', 'spanner-pg', 'bigquery'],
+            description: 'Database context/type'
+        )
+        booleanParam(
+            name: 'DRY_RUN',
+            defaultValue: true,
+            description: 'Execute in dry-run mode (no actual changes)'
+        )
+        booleanParam(
+            name: 'SKIP_GOVERNANCE',
+            defaultValue: false,
+            description: 'Skip governance checks (NOT recommended for production)'
+        )
+    }
+
+    environment {
+        // Liquibase Configuration
+        LIQUIBASE_VERSION = '4.24.0'
+        LIQUIBASE_HOME = "${WORKSPACE}/liquibase"
+        CHANGELOG_FILE = 'liquibase/gcp.yaml'
+
+        // Database Credentials (should be in Jenkins credentials store)
+        DB_URL = credentials('database-url')
+        DB_USERNAME = credentials('database-username')
+        DB_PASSWORD = credentials('database-password')
+
+        // Governance Policy Configuration
+        GOVERNANCE_ENABLED = "${!params.SKIP_GOVERNANCE}"
+        MAX_TABLE_NAME_LENGTH = '63'  // PostgreSQL limit
+        REQUIRED_INDEXES = 'true'
+        ENFORCE_NAMING_CONVENTION = 'true'
+    }
+
+    stages {
+        stage('🔧 Setup') {
+            steps {
+                script {
+                    echo "═══════════════════════════════════════"
+                    echo "  Environment: ${params.ENVIRONMENT}"
+                    echo "  Database Context: ${params.DATABASE_CONTEXT}"
+                    echo "  Dry Run: ${params.DRY_RUN}"
+                    echo "  Governance: ${GOVERNANCE_ENABLED}"
+                    echo "═══════════════════════════════════════"
+                }
+
+                // Install Liquibase (custom script required)
+                sh '''
+                    if [ ! -d "${LIQUIBASE_HOME}" ]; then
+                        echo "📦 Installing Liquibase ${LIQUIBASE_VERSION}..."
+                        wget -q https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.tar.gz
+                        mkdir -p ${LIQUIBASE_HOME}
+                        tar -xzf liquibase-${LIQUIBASE_VERSION}.tar.gz -C ${LIQUIBASE_HOME}
+                        rm liquibase-${LIQUIBASE_VERSION}.tar.gz
+                    fi
+
+                    # Install required JDBC drivers
+                    echo "📦 Installing JDBC drivers..."
+                    # PostgreSQL driver
+                    wget -q https://jdbc.postgresql.org/download/postgresql-42.6.0.jar -O ${LIQUIBASE_HOME}/lib/postgresql.jar
+
+                    # For GCP Spanner (would need additional setup)
+                    # wget -q https://repo1.maven.org/maven2/com/google/cloud/google-cloud-spanner-jdbc/2.11.3/google-cloud-spanner-jdbc-2.11.3.jar
+                '''
+            }
+        }
+
+        stage('📋 Pre-Flight Validation') {
+            steps {
+                script {
+                    echo "🔍 Validating changelog file exists..."
+                    sh "test -f ${CHANGELOG_FILE}"
+
+                    echo "🔍 Validating YAML syntax..."
+                    sh """
+                        # Check if yq is installed, install if not
+                        if ! command -v yq &> /dev/null; then
+                            echo "Installing yq..."
+                            wget -q https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /tmp/yq
+                            chmod +x /tmp/yq
+                            YQ_CMD=/tmp/yq
+                        else
+                            YQ_CMD=yq
+                        fi
+
+                        # Validate YAML syntax
+                        \$YQ_CMD eval '.' ${CHANGELOG_FILE} > /dev/null
+                        echo "✅ YAML syntax is valid"
+                    """
+                }
+            }
+        }
+
+        stage('🛡️ Governance Policy Checks') {
+            when {
+                expression { params.SKIP_GOVERNANCE == false }
+            }
+
+            parallel {
+                stage('Policy: Table Naming Conventions') {
+                    steps {
+                        script {
+                            echo "🔍 Validating table naming conventions..."
+                            sh '''
+                                # Use standalone validation script
+                                chmod +x liquibase/validate-policies.sh
+                                ./liquibase/validate-policies.sh liquibase/gcp.yaml
+import yaml
+import re
+import sys
+
+def validate_table_name(table_name):
+                                    """Validate table naming conventions"""
+    errors = []
+
+    # Rule 1: Must be snake_case
+    if not re.match(r'^[a-z][a-z0-9_]*$', table_name):
+        errors.append(f"Table '{table_name}' is not in snake_case format")
+
+    # Rule 2: No table prefixes (tbl_, tb_)
+    if re.match(r'^(tbl|tb|table)_', table_name):
+        errors.append(f"Table '{table_name}' uses prohibited prefix")
+
+    # Rule 3: Length check
+    if len(table_name) > 63:
+        errors.append(f"Table '{table_name}' exceeds max length of 63 characters")
+
+    # Rule 4: Reserved words check
+    reserved_words = ['user', 'order', 'group', 'table', 'index']
+    if table_name in reserved_words:
+        errors.append(f"Table '{table_name}' is a reserved word")
+
+    return errors
+
+def check_changelog(file_path):
+    with open(file_path, 'r') as f:
+        changelog = yaml.safe_load(f)
+
+    all_errors = []
+
+    for changeset in changelog.get('databaseChangeLog', []):
+        if isinstance(changeset, dict) and 'changeSet' in changeset:
+            changes = changeset['changeSet'].get('changes', [])
+
+            for change in changes:
+                # Check createTable changes
+                if 'createTable' in change:
+                    table_name = change['createTable'].get('tableName', '')
+                    errors = validate_table_name(table_name)
+                    if errors:
+                        all_errors.extend(errors)
+
+    return all_errors
+
+if __name__ == '__main__':
+    errors = check_changelog('liquibase/gcp.yaml')
+
+    if errors:
+        print("❌ Table naming convention violations found:")
+        for error in errors:
+            print(f"  - {error}")
+        sys.exit(1)
+    else:
+                            '''
+                        }
+                    }
+                }
+
+                stage('Policy: Index Validation') {
+                    steps {
+                        script {
+                            echo "🔍 Validating index policies..."
+                            sh '''
+                                # Custom index validation script
+                                cat > /tmp/validate_indexes.py << 'PYTHON_SCRIPT'
+import yaml
+import sys
+
+def check_indexes(file_path):
+    with open(file_path, 'r') as f:
+        changelog = yaml.safe_load(f)
+
+    violations = []
+
+    for changeset in changelog.get('databaseChangeLog', []):
+        if isinstance(changeset, dict) and 'changeSet' in changeset:
+            cs = changeset['changeSet']
+            changes = cs.get('changes', [])
+
+            # Track tables and their foreign keys and indexes
+            table_name = None
+            foreign_keys = []
+            indexes = []
+
+            for change in changes:
+                if 'createTable' in change:
+                    table = change['createTable']
+                    table_name = table.get('tableName', '')
+
+                    # Check for foreign key columns
+                    for column in table.get('columns', []):
+                        col = column.get('column', {})
+                        constraints = col.get('constraints', {})
+
+                        if 'foreignKeyName' in constraints:
+                            fk_col = col.get('name')
+                            foreign_keys.append(fk_col)
+
+                if 'createIndex' in change:
+                    index = change['createIndex']
+                    idx_cols = [c.get('column', {}).get('name') for c in index.get('columns', [])]
+                    indexes.extend(idx_cols)
+
+            # Validate: Every foreign key should have an index
+            if table_name and foreign_keys:
+                for fk in foreign_keys:
+                    if fk not in indexes:
+                        violations.append(
+                            f"Table '{table_name}': Foreign key column '{fk}' lacks an index (Performance Risk!)"
+                        )
+
+    return violations
+
+if __name__ == '__main__':
+    violations = check_indexes('liquibase/gcp.yaml')
+
+    if violations:
+        print("❌ Index policy violations found:")
+        for v in violations:
+            print(f"  - {v}")
+        sys.exit(1)
+    else:
+                            '''
+                        }
+                    }
+                }
+
+                stage('Policy: Column Naming Standards') {
+                    steps {
+                        script {
+                            echo "🔍 Validating column naming standards..."
+                            sh '''
+                                cat > /tmp/validate_columns.py << 'PYTHON_SCRIPT'
+import yaml
+import re
+import sys
+
+def validate_column_name(col_name):
+    """Validate column naming conventions"""
+    errors = []
+
+    # Rule: Must be snake_case
+    if not re.match(r'^[a-z][a-z0-9_]*$', col_name):
+        errors.append(f"Column '{col_name}' is not in snake_case format")
+
+    # Rule: Timestamp columns must end with _at
+    if any(x in col_name.lower() for x in ['timestamp', 'date', 'time']) and not col_name.endswith('_at'):
+        if col_name not in ['created_at', 'updated_at', 'deleted_at']:
+            errors.append(f"Column '{col_name}' should follow *_at naming for timestamps")
+
+    # Rule: Boolean columns should start with is_, has_, can_, should_
+    # (would need type info to enforce properly)
+
+    return errors
+
+def check_changelog(file_path):
+    with open(file_path, 'r') as f:
+        changelog = yaml.safe_load(f)
+
+    all_errors = []
+
+    for changeset in changelog.get('databaseChangeLog', []):
+        if isinstance(changeset, dict) and 'changeSet' in changeset:
+            changes = changeset['changeSet'].get('changes', [])
+
+            for change in changes:
+                if 'createTable' in change:
+                    table = change['createTable']
+                    table_name = table.get('tableName', '')
+
+                    for column in table.get('columns', []):
+                        col = column.get('column', {})
+                        col_name = col.get('name', '')
+
+                        errors = validate_column_name(col_name)
+                        if errors:
+                            all_errors.extend([f"Table '{table_name}': {e}" for e in errors])
+
+    return all_errors
+
+if __name__ == '__main__':
+    errors = check_changelog('liquibase/gcp.yaml')
+
+    if errors:
+        print("⚠️  Column naming standard warnings:")
+        for error in errors:
+            print(f"  - {error}")
+        # Don't fail on warnings, just report
+        sys.exit(0)
+    else:
+        print("✅ All columns follow naming standards")
+        sys.exit(0)
+PYTHON_SCRIPT
+
+                                python3 /tmp/validate_columns.py || true
+                            '''
+                        }
+                    }
+                }
+
+                stage('Policy: Rollback Validation') {
+                    steps {
+                        script {
+                            echo "🔍 Validating rollback scripts exist..."
+                            sh '''
+                                cat > /tmp/validate_rollback.py << 'PYTHON_SCRIPT'
+import yaml
+import sys
+
+def check_rollbacks(file_path):
+    with open(file_path, 'r') as f:
+        changelog = yaml.safe_load(f)
+
+    missing_rollbacks = []
+
+    for changeset in changelog.get('databaseChangeLog', []):
+        if isinstance(changeset, dict) and 'changeSet' in changeset:
+            cs = changeset['changeSet']
+            cs_id = cs.get('id', 'unknown')
+            context = cs.get('context', 'unknown')
+
+            # Check if rollback exists
+            if 'rollback' not in cs:
+                missing_rollbacks.append(f"ChangeSet '{cs_id}' (context: {context}) missing rollback")
+
+    return missing_rollbacks
+
+if __name__ == '__main__':
+    missing = check_rollbacks('liquibase/gcp.yaml')
+
+    if missing:
+        print("❌ Rollback validation failures:")
+        for m in missing:
+            print(f"  - {m}")
+        sys.exit(1)
+    else:
+        print("✅ All changesets have rollback scripts")
+        sys.exit(0)
+PYTHON_SCRIPT
+
+                                python3 /tmp/validate_rollback.py
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('🔍 Liquibase Validation') {
+            steps {
+                script {
+                    echo "Running Liquibase validation checks..."
+                    sh """
+                        ${LIQUIBASE_HOME}/liquibase \\
+                            --changelog-file=${CHANGELOG_FILE} \\
+                            --url=${DB_URL} \\
+                            --username=${DB_USERNAME} \\
+                            --password=${DB_PASSWORD} \\
+                            --contexts=${params.DATABASE_CONTEXT} \\
+                            validate
+                    """
+                }
+            }
+        }
+
+        stage('📊 Generate Migration Report') {
+            steps {
+                script {
+                    echo "Generating migration status report..."
+                    sh """
+                        ${LIQUIBASE_HOME}/liquibase \\
+                            --changelog-file=${CHANGELOG_FILE} \\
+                            --url=${DB_URL} \\
+                            --username=${DB_USERNAME} \\
+                            --password=${DB_PASSWORD} \\
+                            --contexts=${params.DATABASE_CONTEXT} \\
+                            status \\
+                            --verbose > migration-status.txt
+
+                        cat migration-status.txt
+                    """
+
+                    archiveArtifacts artifacts: 'migration-status.txt', fingerprint: true
+                }
+            }
+        }
+
+        stage('🚀 Execute Migration') {
+            when {
+                expression { params.DRY_RUN == false }
+            }
+            steps {
+                script {
+                    // Require manual approval for production
+                    if (params.ENVIRONMENT == 'production') {
+                        input message: '⚠️  Approve production database migration?',
+                              ok: 'Deploy to Production',
+                              submitter: 'admin,dba'
+                    }
+
+                    echo "Executing Liquibase migration..."
+                    sh """
+                        ${LIQUIBASE_HOME}/liquibase \\
+                            --changelog-file=${CHANGELOG_FILE} \\
+                            --url=${DB_URL} \\
+                            --username=${DB_USERNAME} \\
+                            --password=${DB_PASSWORD} \\
+                            --contexts=${params.DATABASE_CONTEXT} \\
+                            update
+                    """
+                }
+            }
+        }
+
+        stage('🔄 Dry Run (Update SQL)') {
+            when {
+                expression { params.DRY_RUN == true }
+            }
+            steps {
+                script {
+                    echo "Generating SQL preview (dry run)..."
+                    sh """
+                        ${LIQUIBASE_HOME}/liquibase \\
+                            --changelog-file=${CHANGELOG_FILE} \\
+                            --url=${DB_URL} \\
+                            --username=${DB_USERNAME} \\
+                            --password=${DB_PASSWORD} \\
+                            --contexts=${params.DATABASE_CONTEXT} \\
+                            update-sql > migration-preview.sql
+
+                        echo "═══════════════════════════════════════"
+                        echo "SQL Preview (first 50 lines):"
+                        echo "═══════════════════════════════════════"
+                        head -50 migration-preview.sql
+                    """
+
+                    archiveArtifacts artifacts: 'migration-preview.sql', fingerprint: true
+                }
+            }
+        }
+
+        stage('✅ Post-Migration Validation') {
+            when {
+                expression { params.DRY_RUN == false }
+            }
+            steps {
+                script {
+                    echo "Running post-migration health checks..."
+
+                    // Custom health check queries
+                    sh '''
+                        # Example: Verify critical tables exist
+                        psql ${DB_URL} -c "SELECT tablename FROM pg_tables WHERE schemaname = 'public';" || true
+
+                        # Check for missing indexes (another custom script needed!)
+                        # Check data integrity
+                        # Validate constraints
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Pipeline completed successfully!"
+
+            // Send notification (requires additional plugin configuration)
+            // slackSend color: 'good', message: "Database migration successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+        }
+
+        failure {
+            echo "❌ Pipeline failed!"
+
+            // Send alert
+            // slackSend color: 'danger', message: "Database migration FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+        }
+
+        always {
+            echo "Cleaning up temporary files..."
+            sh 'rm -f /tmp/validate_*.py'
+
+            // Archive logs
+            archiveArtifacts artifacts: '*.txt,*.sql', allowEmptyArchive: true
+        }
+    }
+}

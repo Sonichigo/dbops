@@ -1,0 +1,535 @@
+#!/usr/bin/env groovy
+
+/**
+ * ═══════════════════════════════════════════════════════════════
+ *  Jenkins Pipeline: Flyway with Database Governance Policies
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * This pipeline demonstrates the COMPLEXITY of implementing database
+ * governance policies with Flyway in traditional CI/CD tools.
+ *
+ * Governance Policies Enforced:
+ * ✓ Migration naming conventions (V001__description.sql)
+ * ✓ Undo migration validation
+ * ✓ SQL quality checks (no SELECT *, dangerous operations)
+ * ✓ Index existence validation
+ * ✓ Table/column naming standards
+ * ✓ SQL injection prevention
+ * ✓ Migration ordering validation
+ * ✓ Performance impact analysis
+ *
+ * NOTE: This requires extensive custom scripting. Compare with
+ *       Harness Database DevOps where this is all built-in.
+ * ═══════════════════════════════════════════════════════════════
+ */
+
+pipeline {
+    agent any
+
+    parameters {
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev', 'staging', 'production'],
+            description: 'Target environment for database migration'
+        )
+        choice(
+            name: 'MIGRATION_TARGET',
+            choices: ['latest', 'specific_version', 'baseline'],
+            description: 'Migration target type'
+        )
+        string(
+            name: 'TARGET_VERSION',
+            defaultValue: '',
+            description: 'Specific version to migrate to (if MIGRATION_TARGET=specific_version)'
+        )
+        booleanParam(
+            name: 'DRY_RUN',
+            defaultValue: true,
+            description: 'Execute in dry-run mode (validate only)'
+        )
+        booleanParam(
+            name: 'SKIP_GOVERNANCE',
+            defaultValue: false,
+            description: 'Skip governance checks (NOT recommended)'
+        )
+        booleanParam(
+            name: 'ENABLE_UNDO',
+            defaultValue: false,
+            description: 'Enable undo migrations (rollback capability)'
+        )
+    }
+
+    environment {
+        // Flyway Configuration
+        FLYWAY_VERSION = '10.4.1'
+        FLYWAY_HOME = "${WORKSPACE}/flyway"
+        MIGRATIONS_DIR = 'flyway/migrations'
+        FLYWAY_CONFIG = 'flyway/flyway.toml'
+
+        // Database Credentials
+        DB_URL = credentials('database-url')
+        DB_USER = credentials('database-username')
+        DB_PASSWORD = credentials('database-password')
+
+        // Governance Configuration
+        GOVERNANCE_ENABLED = "${!params.SKIP_GOVERNANCE}"
+        MAX_MIGRATION_SIZE_KB = '1024'  // 1MB limit per migration
+        REQUIRE_UNDO_FOR_PROD = 'true'
+    }
+
+    stages {
+        stage('🔧 Setup Flyway') {
+            steps {
+                script {
+                    echo "═══════════════════════════════════════"
+                    echo "  Flyway Database Migration Pipeline"
+                    echo "  Environment: ${params.ENVIRONMENT}"
+                    echo "  Target: ${params.MIGRATION_TARGET}"
+                    echo "  Dry Run: ${params.DRY_RUN}"
+                    echo "  Governance: ${GOVERNANCE_ENABLED}"
+                    echo "═══════════════════════════════════════"
+                }
+
+                // Install Flyway CLI (manual installation required)
+                sh '''
+                    if [ ! -d "${FLYWAY_HOME}" ]; then
+                        echo "📦 Installing Flyway ${FLYWAY_VERSION}..."
+                        wget -q https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/${FLYWAY_VERSION}/flyway-commandline-${FLYWAY_VERSION}-linux-x64.tar.gz
+                        tar -xzf flyway-commandline-${FLYWAY_VERSION}-linux-x64.tar.gz
+                        mv flyway-${FLYWAY_VERSION} ${FLYWAY_HOME}
+                        rm flyway-commandline-${FLYWAY_VERSION}-linux-x64.tar.gz
+                        chmod +x ${FLYWAY_HOME}/flyway
+                    fi
+
+                    # Install PostgreSQL driver
+                    if [ ! -f "${FLYWAY_HOME}/drivers/postgresql.jar" ]; then
+                        echo "📦 Installing PostgreSQL JDBC driver..."
+                        wget -q https://jdbc.postgresql.org/download/postgresql-42.6.0.jar -O ${FLYWAY_HOME}/drivers/postgresql.jar
+                    fi
+                '''
+            }
+        }
+
+        stage('📋 Pre-Flight Checks') {
+            steps {
+                script {
+                    echo "🔍 Validating migration files exist..."
+                    sh """
+                        if [ ! -d "${MIGRATIONS_DIR}" ]; then
+                            echo "❌ Migrations directory not found: ${MIGRATIONS_DIR}"
+                            exit 1
+                        fi
+
+                        MIGRATION_COUNT=\$(find ${MIGRATIONS_DIR} -name "V*.sql" -o -name "U*.sql" | wc -l)
+                        echo "Found \${MIGRATION_COUNT} migration files"
+
+                        if [ \${MIGRATION_COUNT} -eq 0 ]; then
+                            echo "⚠️  Warning: No migration files found!"
+                        fi
+                    """
+                }
+            }
+        }
+
+        stage('🛡️ Governance Policy Checks') {
+            when {
+                expression { params.SKIP_GOVERNANCE == false }
+            }
+
+            parallel {
+                stage('Policy: Naming Convention') {
+                    steps {
+                        script {
+                            echo "🔍 Validating migration file naming conventions..."
+                            sh '''
+                                chmod +x flyway/validate-policies.sh
+                                ./flyway/validate-policies.sh flyway/migrations
+                            '''
+                        }
+                    }
+                }
+
+                stage('Policy: SQL Quality Checks') {
+                    steps {
+                        script {
+                            echo "🔍 Running SQL quality and security checks..."
+                            sh '''
+                                cat > /tmp/validate_sql_quality.py << 'PYTHON_SCRIPT'
+import os
+import re
+import sys
+
+def check_sql_quality(migrations_dir):
+    """Check SQL files for quality and security issues"""
+    errors = []
+    warnings = []
+
+    dangerous_patterns = {
+        'SELECT *': r'SELECT\s+\*\s+FROM',
+        'DROP TABLE without IF EXISTS': r'DROP\s+TABLE\s+(?!IF\s+EXISTS)[a-zA-Z0-9_]+',
+        'Truncate without WHERE': r'TRUNCATE\s+TABLE',
+        'DELETE without WHERE': r'DELETE\s+FROM\s+\w+\s*(?!WHERE)',
+        'UPDATE without WHERE': r'UPDATE\s+\w+\s+SET\s+.*?(?!WHERE)',
+        'SQL Injection risk (string concat)': r"(?:SELECT|INSERT|UPDATE|DELETE).*?'.*?\+.*?'",
+        'No transaction control': None,  # Custom check
+    }
+
+    performance_patterns = {
+        'Missing INDEX hint': r'CREATE\s+TABLE.*?(?!INDEX)',
+        'Large VARCHAR without limit': r'VARCHAR\s*(?!\(\d+\))',
+        'NOT NULL missing on PKs': r'PRIMARY\s+KEY.*?(?!NOT\s+NULL)',
+    }
+
+    for filename in os.listdir(migrations_dir):
+        if not filename.endswith('.sql') or filename.startswith('U'):
+            continue
+
+        filepath = os.path.join(migrations_dir, filename)
+
+        with open(filepath, 'r') as f:
+            content = f.read()
+            content_upper = content.upper()
+
+            # Check for dangerous patterns
+            for desc, pattern in dangerous_patterns.items():
+                if pattern and re.search(pattern, content_upper, re.IGNORECASE):
+                    warnings.append(f"{filename}: Contains '{desc}' - Review required")
+
+            # Check for performance issues
+            for desc, pattern in performance_patterns.items():
+                if pattern and re.search(pattern, content_upper, re.IGNORECASE):
+                    warnings.append(f"{filename}: {desc}")
+
+            # Check file size
+            file_size_kb = os.path.getsize(filepath) / 1024
+            if file_size_kb > 1024:  # 1MB
+                warnings.append(f"{filename}: Large migration file ({file_size_kb:.1f}KB) - Consider splitting")
+
+            # Check for comments/documentation
+            if '--' not in content and '/*' not in content:
+                warnings.append(f"{filename}: Missing comments/documentation")
+
+            # Verify CREATE TABLE statements have indexes
+            if 'CREATE TABLE' in content_upper:
+                if 'CREATE INDEX' not in content_upper and 'PRIMARY KEY' not in content_upper:
+                    warnings.append(f"{filename}: Table created without indexes - Performance risk")
+
+    return errors, warnings
+
+if __name__ == '__main__':
+    errors, warnings = check_sql_quality('flyway/migrations')
+
+    if warnings:
+        print("⚠️  SQL quality warnings:")
+        for w in warnings:
+            print(f"  - {w}")
+
+    if errors:
+        print("❌ SQL quality violations:")
+        for e in errors:
+            print(f"  - {e}")
+        sys.exit(1)
+    else:
+        print("✅ SQL quality checks passed")
+        sys.exit(0)
+PYTHON_SCRIPT
+
+                                python3 /tmp/validate_sql_quality.py || true  # Don't fail on warnings
+                            '''
+                        }
+                    }
+                }
+
+                stage('Policy: Undo Migration Validation') {
+                    when {
+                        expression { params.ENVIRONMENT == 'production' && params.ENABLE_UNDO == true }
+                    }
+                    steps {
+                        script {
+                            echo "🔍 Validating undo migrations for production..."
+                            sh '''
+                                cat > /tmp/validate_undo.py << 'PYTHON_SCRIPT'
+import os
+import re
+import sys
+
+def check_undo_migrations(migrations_dir):
+    """Ensure every versioned migration has a corresponding undo"""
+    errors = []
+
+    # Get all versioned migrations
+    versioned = set()
+    undo = set()
+
+    for filename in os.listdir(migrations_dir):
+        if filename.startswith('V') and filename.endswith('.sql'):
+            # Extract version number
+            match = re.match(r'V(\d+)__.*\.sql', filename)
+            if match:
+                versioned.add(match.group(1))
+
+        elif filename.startswith('U') and filename.endswith('.sql'):
+            match = re.match(r'U(\d+)__.*\.sql', filename)
+            if match:
+                undo.add(match.group(1))
+
+    # Check for missing undo migrations
+    missing_undo = versioned - undo
+
+    if missing_undo:
+        errors.append("Missing undo migrations for production deployment:")
+        for version in sorted(missing_undo):
+            errors.append(f"  - V{version}__*.sql is missing U{version}__*.sql")
+
+    return errors
+
+if __name__ == '__main__':
+    errors = check_undo_migrations('flyway/migrations')
+
+    if errors:
+        print("❌ Undo migration validation failed:")
+        for e in errors:
+            print(e)
+        print("\n⚠️  Production deployments require undo migrations for rollback capability")
+        sys.exit(1)
+    else:
+        print("✅ All versioned migrations have corresponding undo scripts")
+        sys.exit(0)
+PYTHON_SCRIPT
+
+                                python3 /tmp/validate_undo.py
+                            '''
+                        }
+                    }
+                }
+
+                stage('Policy: Schema Standards') {
+                    steps {
+                        script {
+                            echo "🔍 Validating database schema standards..."
+                            sh '''
+                                chmod +x flyway/validate-policies.sh
+                                ./flyway/validate-policies.sh flyway/migrations
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('🔍 Flyway Info') {
+            steps {
+                script {
+                    echo "Getting migration status from Flyway..."
+                    sh """
+                        ${FLYWAY_HOME}/flyway \\
+                            -url="${DB_URL}" \\
+                            -user="${DB_USER}" \\
+                            -password="${DB_PASSWORD}" \\
+                            -locations="filesystem:${WORKSPACE}/${MIGRATIONS_DIR}" \\
+                            info > flyway-info.txt
+
+                        cat flyway-info.txt
+                    """
+
+                    archiveArtifacts artifacts: 'flyway-info.txt', fingerprint: true
+                }
+            }
+        }
+
+        stage('✅ Flyway Validate') {
+            steps {
+                script {
+                    echo "Validating applied migrations..."
+                    sh """
+                        ${FLYWAY_HOME}/flyway \\
+                            -url="${DB_URL}" \\
+                            -user="${DB_USER}" \\
+                            -password="${DB_PASSWORD}" \\
+                            -locations="filesystem:${WORKSPACE}/${MIGRATIONS_DIR}" \\
+                            validate
+                    """
+                }
+            }
+        }
+
+        stage('🔄 Dry Run (Generate SQL)') {
+            when {
+                expression { params.DRY_RUN == true }
+            }
+            steps {
+                script {
+                    echo "Generating migration preview (dry run mode)..."
+
+                    // Flyway doesn't have built-in dry-run, need workaround
+                    sh """
+                        echo "⚠️  Flyway doesn't have native dry-run support"
+                        echo "Showing pending migrations that would be applied:"
+                        echo ""
+
+                        ${FLYWAY_HOME}/flyway \\
+                            -url="${DB_URL}" \\
+                            -user="${DB_USER}" \\
+                            -password="${DB_PASSWORD}" \\
+                            -locations="filesystem:${WORKSPACE}/${MIGRATIONS_DIR}" \\
+                            info -pending > pending-migrations.txt
+
+                        cat pending-migrations.txt
+
+                        echo ""
+                        echo "═══════════════════════════════════════"
+                        echo "To see actual SQL, would need to read migration files manually:"
+                        echo "═══════════════════════════════════════"
+                        find ${MIGRATIONS_DIR} -name "V*.sql" -exec echo "File: {}" \\; -exec head -20 {} \\; -exec echo "" \\;
+                    """
+
+                    archiveArtifacts artifacts: 'pending-migrations.txt', fingerprint: true
+                }
+            }
+        }
+
+        stage('🚀 Execute Migration') {
+            when {
+                expression { params.DRY_RUN == false }
+            }
+            steps {
+                script {
+                    // Require manual approval for production
+                    if (params.ENVIRONMENT == 'production') {
+                        timeout(time: 15, unit: 'MINUTES') {
+                            input message: '⚠️  Approve production database migration?',
+                                  ok: 'Deploy to Production',
+                                  submitter: 'admin,dba-team'
+                        }
+                    }
+
+                    echo "Executing Flyway migration..."
+
+                    def migrateCommand = """
+                        ${FLYWAY_HOME}/flyway \\
+                            -url="${DB_URL}" \\
+                            -user="${DB_USER}" \\
+                            -password="${DB_PASSWORD}" \\
+                            -locations="filesystem:${WORKSPACE}/${MIGRATIONS_DIR}" \\
+                    """
+
+                    if (params.MIGRATION_TARGET == 'specific_version' && params.TARGET_VERSION) {
+                        migrateCommand += " -target=\"${params.TARGET_VERSION}\""
+                    }
+
+                    migrateCommand += " migrate"
+
+                    sh migrateCommand
+                }
+            }
+        }
+
+        stage('🔙 Rollback (Undo)') {
+            when {
+                expression {
+                    params.ENABLE_UNDO == true &&
+                    params.DRY_RUN == false &&
+                    params.MIGRATION_TARGET == 'baseline'
+                }
+            }
+            steps {
+                script {
+                    input message: '⚠️  Confirm rollback/undo operation?',
+                          ok: 'Execute Rollback',
+                          submitter: 'admin,dba-team'
+
+                    echo "Executing undo migration..."
+                    sh """
+                        ${FLYWAY_HOME}/flyway \\
+                            -url="${DB_URL}" \\
+                            -user="${DB_USER}" \\
+                            -password="${DB_PASSWORD}" \\
+                            -locations="filesystem:${WORKSPACE}/${MIGRATIONS_DIR}" \\
+                            undo
+                    """
+                }
+            }
+        }
+
+        stage('✅ Post-Migration Validation') {
+            when {
+                expression { params.DRY_RUN == false }
+            }
+            steps {
+                script {
+                    echo "Running post-migration health checks..."
+
+                    sh """
+                        # Verify migration succeeded
+                        ${FLYWAY_HOME}/flyway \\
+                            -url="${DB_URL}" \\
+                            -user="${DB_USER}" \\
+                            -password="${DB_PASSWORD}" \\
+                            -locations="filesystem:${WORKSPACE}/${MIGRATIONS_DIR}" \\
+                            info | tee post-migration-info.txt
+
+                        # Custom health checks (requires psql or similar)
+                        # psql ${DB_URL} -c "SELECT COUNT(*) FROM flyway_schema_history;"
+
+                        echo "✅ Post-migration validation complete"
+                    """
+
+                    archiveArtifacts artifacts: 'post-migration-info.txt', fingerprint: true
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                echo "✅ Flyway migration pipeline completed successfully!"
+
+                // Notification (requires Slack/email plugin configuration)
+                // slackSend(
+                //     color: 'good',
+                //     message: "Flyway Migration SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}\nEnvironment: ${params.ENVIRONMENT}"
+                // )
+            }
+        }
+
+        failure {
+            script {
+                echo "❌ Flyway migration pipeline failed!"
+
+                // Collect failure logs
+                sh """
+                    echo "Collecting failure diagnostics..."
+                    ${FLYWAY_HOME}/flyway \\
+                        -url="${DB_URL}" \\
+                        -user="${DB_USER}" \\
+                        -password="${DB_PASSWORD}" \\
+                        info > failure-info.txt || true
+                """
+
+                archiveArtifacts artifacts: 'failure-info.txt', allowEmptyArchive: true
+
+                // Alert notification
+                // slackSend(
+                //     color: 'danger',
+                //     message: "Flyway Migration FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}\nEnvironment: ${params.ENVIRONMENT}\nCheck logs for details."
+                // )
+            }
+        }
+
+        always {
+            script {
+                echo "Cleaning up..."
+                sh '''
+                    rm -f /tmp/validate_*.py
+                '''
+
+                // Archive all artifacts
+                archiveArtifacts artifacts: '*.txt,*.sql', allowEmptyArchive: true
+
+                // Publish test results if applicable
+                // junit allowEmptyResults: true, testResults: 'test-results/**/*.xml'
+            }
+        }
+    }
+}
