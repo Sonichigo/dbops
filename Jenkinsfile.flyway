@@ -12,10 +12,10 @@
  * 3. Python 3 installed
  *
  * Installation (one-time setup on Jenkins agent):
- *   # Install Flyway
- *   wget https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.4.1/flyway-commandline-10.4.1-linux-x64.tar.gz
+ *   # Install Flyway (ARM64 version for Apple Silicon/aarch64)
+ *   wget https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.4.1/flyway-commandline-10.4.1-linux-aarch64.tar.gz
  *   sudo mkdir -p /opt/flyway
- *   sudo tar -xzf flyway-commandline-10.4.1-linux-x64.tar.gz -C /opt
+ *   sudo tar -xzf flyway-commandline-10.4.1-linux-aarch64.tar.gz -C /opt
  *   sudo mv /opt/flyway-10.4.1 /opt/flyway
  *   sudo ln -s /opt/flyway/flyway /usr/local/bin/flyway
  *
@@ -103,10 +103,10 @@ pipeline {
                     # Verify Flyway is installed
                     if ! command -v flyway >/dev/null 2>&1; then
                         echo "❌ Flyway not found in PATH"
-                        echo "Please install Flyway on Jenkins agent:"
-                        echo "  wget https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.4.1/flyway-commandline-10.4.1-linux-x64.tar.gz"
+                        echo "Please install Flyway on Jenkins agent (ARM64 version):"
+                        echo "  wget https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.4.1/flyway-commandline-10.4.1-linux-aarch64.tar.gz"
                         echo "  sudo mkdir -p /opt/flyway"
-                        echo "  sudo tar -xzf flyway-commandline-10.4.1-linux-x64.tar.gz -C /opt"
+                        echo "  sudo tar -xzf flyway-commandline-10.4.1-linux-aarch64.tar.gz -C /opt"
                         echo "  sudo mv /opt/flyway-10.4.1 /opt/flyway"
                         echo "  sudo ln -s /opt/flyway/flyway /usr/local/bin/flyway"
                         exit 1

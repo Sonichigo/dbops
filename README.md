@@ -37,9 +37,9 @@ sudo ln -s /opt/liquibase/liquibase /usr/local/bin/liquibase
 wget https://jdbc.postgresql.org/download/postgresql-42.6.0.jar
 sudo mv postgresql-42.6.0.jar /opt/liquibase/lib/
 
-# Install Flyway
-wget https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.4.1/flyway-commandline-10.4.1-linux-x64.tar.gz
-sudo tar -xzf flyway-commandline-10.4.1-linux-x64.tar.gz -C /opt
+# Install Flyway (ARM64 version for Apple Silicon)
+wget https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.4.1/flyway-commandline-10.4.1-linux-aarch64.tar.gz
+sudo tar -xzf flyway-commandline-10.4.1-linux-aarch64.tar.gz -C /opt
 sudo mv /opt/flyway-10.4.1 /opt/flyway
 sudo ln -s /opt/flyway/flyway /usr/local/bin/flyway
 

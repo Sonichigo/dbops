@@ -146,7 +146,7 @@ pipeline {
             steps {
                 script {
                     echo "🔍 Validating YAML syntax..."
-                    sh '''
+                    sh """
                         # Use Python to validate YAML
                         python3 << 'PYTHON_EOF'
 import yaml
@@ -160,7 +160,7 @@ except Exception as e:
     print(f'❌ YAML validation failed: {e}')
     sys.exit(1)
 PYTHON_EOF
-                    '''
+                    """
                 }
             }
         }
