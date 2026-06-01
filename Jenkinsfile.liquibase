@@ -507,29 +507,15 @@ PYTHON_SCRIPT
 
     post {
         success {
-            script {
-                echo "✅ Pipeline completed successfully!"
-
-                // Send notification (requires additional plugin configuration)
-                // slackSend color: 'good', message: "Database migration successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}"
-            }
+            echo "✅ Pipeline completed successfully!"
         }
 
         failure {
-            script {
-                echo "❌ Pipeline failed!"
-
-                // Send alert
-                // slackSend color: 'danger', message: "Database migration FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}"
-            }
+            echo "❌ Pipeline failed!"
         }
 
         always {
-            script {
-                echo "Cleaning up temporary files..."
-                // Archive logs
-                archiveArtifacts artifacts: '*.txt,*.sql', allowEmptyArchive: true
-            }
+            echo "Cleaning up temporary files..."
         }
     }
 }

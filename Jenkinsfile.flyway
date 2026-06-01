@@ -482,41 +482,15 @@ PYTHON_SCRIPT
 
     post {
         success {
-            script {
-                echo "✅ Flyway migration pipeline completed successfully!"
-
-                // Notification (requires Slack/email plugin configuration)
-                // slackSend(
-                //     color: 'good',
-                //     message: "Flyway Migration SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}\nEnvironment: ${params.ENVIRONMENT}"
-                // )
-            }
+            echo "✅ Flyway migration pipeline completed successfully!"
         }
 
         failure {
-            script {
-                echo "❌ Flyway migration pipeline failed!"
-
-                // Archive logs only (node context is not guaranteed in post-failure)
-                archiveArtifacts artifacts: '*.txt,*.sql', allowEmptyArchive: true
-
-                // Alert notification
-                // slackSend(
-                //     color: 'danger',
-                //     message: "Flyway Migration FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}\nEnvironment: ${params.ENVIRONMENT}\nCheck logs for details."
-                // )
-            }
+            echo "❌ Flyway migration pipeline failed!"
         }
 
         always {
-            script {
-                echo "Cleaning up..."
-                // Archive all artifacts
-                archiveArtifacts artifacts: '*.txt,*.sql', allowEmptyArchive: true
-
-                // Publish test results if applicable
-                // junit allowEmptyResults: true, testResults: 'test-results/**/*.xml'
-            }
+            echo "Cleaning up..."
         }
     }
 }
