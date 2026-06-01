@@ -497,17 +497,8 @@ PYTHON_SCRIPT
             script {
                 echo "❌ Flyway migration pipeline failed!"
 
-                // Collect failure logs
-                sh """
-                    echo "Collecting failure diagnostics..."
-                    ${FLYWAY_HOME}/flyway \\
-                        -url="${DB_URL}" \\
-                        -user="${DB_USER}" \\
-                        -password="${DB_PASSWORD}" \\
-                        info > failure-info.txt || true
-                """
-
-                archiveArtifacts artifacts: 'failure-info.txt', allowEmptyArchive: true
+                // Archive logs only (node context is not guaranteed in post-failure)
+                archiveArtifacts artifacts: '*.txt,*.sql', allowEmptyArchive: true
 
                 // Alert notification
                 // slackSend(
@@ -520,10 +511,6 @@ PYTHON_SCRIPT
         always {
             script {
                 echo "Cleaning up..."
-                sh '''
-                    rm -f /tmp/validate_*.py
-                '''
-
                 // Archive all artifacts
                 archiveArtifacts artifacts: '*.txt,*.sql', allowEmptyArchive: true
 
