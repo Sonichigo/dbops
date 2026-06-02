@@ -33,10 +33,10 @@ databaseChangeLog:
       rollback:
         - dropTable:
             tableName: person
-  - includeAll:
-      path: sql
-      logicalFilePath:  ""
-      relativeToChangelogFile: true
+#   - includeAll:
+#       path: sql
+#       logicalFilePath:  ""
+#       relativeToChangelogFile: true
   - changeSet:
       id: my.poc:2
       author: my.poc
