@@ -2,7 +2,7 @@ databaseChangeLog:
   - changeSet:
       id: product-table-v2
       author: sonichigo
-      labels: products-api 
+      labels: products-api
       comment: Creating product table for REST API
       changes:
         - createTable:
@@ -237,3 +237,15 @@ databaseChangeLog:
         - delete:
             tableName: product
             where: name in ('Enterprise Docking Station', '4K Webcam with Auto-Focus', 'Noise-Cancelling Conference Microphone', 'Ergonomic Mechanical Keyboard', 'Professional Monitor Stand')
+  - changeSet:
+      id: '20260609120000'
+      author: animesh
+      changes:
+        - addColumn:
+            tableName: product
+            columns:
+              - column:
+                  name: last_checked
+                  type: timestamp
+                  constraints:
+                    nullable: true
