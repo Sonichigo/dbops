@@ -1,3 +1,9 @@
 
+[environments.default]
+url = "jdbc:postgresql://localhost:5432/flyway"
+user = "user"
+password = "password"
+
 [flyway]
-defaultSchema = "dbo_bikram"
+defaultSchema = "public"
+locations = ["filesystem:migrations"]

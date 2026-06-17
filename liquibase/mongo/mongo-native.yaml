@@ -35,8 +35,8 @@ databaseChangeLog:
 
               print("Collection 'person' created with validation schema");
       rollback:
-        - mongosh:
-            mongosh: |
+        - mongo:
+            mongo: |
               db.person.drop();
               print("Collection 'person' dropped");
 
@@ -56,8 +56,8 @@ databaseChangeLog:
 
               print("Created unique index 'idx_person_name' on person.name");
       rollback:
-        - mongosh:
-            mongosh: |
+        - mongo:
+            mongo: |
               db.person.dropIndex("idx_person_name");
               print("Dropped index 'idx_person_name'");
 
@@ -78,8 +78,8 @@ databaseChangeLog:
 
               print(`Inserted ${result.insertedIds.length} documents`);
       rollback:
-        - mongosh:
-            mongosh: |
+        - mongo:
+            mongo: |
               const result = db.person.deleteMany({
                   name: { $in: ["Joe Smith", "Maria Garcia", "Yuki Tanaka"] }
               });
@@ -101,8 +101,8 @@ databaseChangeLog:
 
               print(`Modified ${result.modifiedCount} documents`);
       rollback:
-        - mongosh:
-            mongosh: |
+        - mongo:
+            mongo: |
               const result = db.person.updateMany(
                   { age: { $gt: 40 } },
                   { $set: { address: "Japan" } }
@@ -142,8 +142,8 @@ databaseChangeLog:
 
               print("Added ageGroup field to all person documents");
       rollback:
-        - mongosh:
-            mongosh: |
+        - mongo:
+            mongo: |
               const result = db.person.updateMany(
                   {},
                   { $unset: { ageGroup: "" } }
