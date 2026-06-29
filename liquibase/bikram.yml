@@ -1,0 +1,489 @@
+# ── changelog-master.yaml ─────────────────────────────────────────────────────
+# Single master changelog for BBQBookkeeper DBMarlin demo.
+#
+# Context tags:
+#   "bad or good"  → runs in BOTH states (schema, truncate, locations)
+#   "bad"          → runs only in bad state (drop indexes, bulk data)
+#   "good"         → runs only in good state (add indexes, bulk data)
+#
+# Harness DB Instance context:
+#   Bad pipeline  → context: bad
+#   Good pipeline → context: good
+#
+# IMPORTANT: Every changeSet has an explicit context tag.
+# Harness skips changesets with no context when a context filter is applied.
+#
+# DESIGN DECISIONS:
+#   - Schema uses CREATE TABLE IF NOT EXISTS → idempotent, safe on any DB state
+#   - validCheckSum: ANY → schema SQL changes never cause checksum failures
+#   - Truncate split into 3 changesets with individual preConditions → each
+#     table checked independently, no DO $$ blocks (Liquibase parses $$ as param)
+#   - Locations use ON CONFLICT DO NOTHING → safe if truncate was skipped
+#   - state-3 drop constraints uses IF EXISTS → safe on fresh tables
+#   - bad/good seed changesets have no FK guard needed because state-2 always
+#     seeds locations first with ON CONFLICT DO NOTHING
+
+databaseChangeLog:
+  # ── Schema ───────────────────────────────────────────────────────────────────
+  # CREATE TABLE IF NOT EXISTS is idempotent — safe on fresh and existing DBs.
+  # validCheckSum: ANY means future SQL edits never cause checksum failures.
+  - changeSet:
+      id: schema-1-create-locations
+      author: bbqbookkeeper
+      context: "bad or good"
+      runOnChange: false
+      validCheckSum: ANY
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE IF NOT EXISTS locations (
+                id   SERIAL PRIMARY KEY,
+                name TEXT NOT NULL UNIQUE,
+                city TEXT NOT NULL
+              );
+  - changeSet:
+      id: schema-2-create-inventory
+      author: bbqbookkeeper
+      context: "bad or good"
+      runOnChange: false
+      validCheckSum: ANY
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE IF NOT EXISTS inventory (
+                id       SERIAL PRIMARY KEY,
+                name     TEXT    NOT NULL,
+                quantity INTEGER NOT NULL DEFAULT 0,
+                unit     TEXT    NOT NULL DEFAULT 'lbs',
+                location TEXT    NOT NULL REFERENCES locations(name) ON UPDATE CASCADE
+              );
+  - changeSet:
+      id: schema-3-create-suppliers
+      author: bbqbookkeeper
+      context: "bad or good"
+      runOnChange: false
+      validCheckSum: ANY
+      changes:
+        - sql:
+            sql: |
+              CREATE TABLE IF NOT EXISTS suppliers (
+                id        SERIAL PRIMARY KEY,
+                name      TEXT    NOT NULL,
+                location  TEXT    NOT NULL,
+                item      TEXT    NOT NULL,
+                lead_days INTEGER NOT NULL DEFAULT 1
+              );
+  # ── Truncate ─────────────────────────────────────────────────────────────────
+  # Split into 3 separate changesets — each with its own preCondition.
+  # Avoids DO $$ blocks which Liquibase misparses as parameter placeholders.
+  # Order: inventory first (has FK to locations), then suppliers, then locations.
+  - changeSet:
+      id: state-1a-delete-inventory
+      author: bbqbookkeeper
+      context: "bad or good"
+      runAlways: true
+      preConditions:
+        - onFail: MARK_RAN
+          tableExists:
+            tableName: inventory
+      changes:
+        - sql:
+            sql: DELETE FROM inventory WHERE 1=1;
+  - changeSet:
+      id: state-1b-delete-suppliers
+      author: bbqbookkeeper
+      context: "bad or good"
+      runAlways: true
+      preConditions:
+        - onFail: MARK_RAN
+          tableExists:
+            tableName: suppliers
+      changes:
+        - sql:
+            sql: DELETE FROM suppliers WHERE 1=1;
+  - changeSet:
+      id: state-1c-delete-locations
+      author: bbqbookkeeper
+      context: "bad or good"
+      runAlways: true
+      preConditions:
+        - onFail: MARK_RAN
+          tableExists:
+            tableName: locations
+      changes:
+        - sql:
+            sql: DELETE FROM inventory WHERE 1=1; DELETE FROM suppliers WHERE 1=1; DELETE FROM locations WHERE 1=1;
+  # ── Reseed locations ─────────────────────────────────────────────────────────
+  # ON CONFLICT DO NOTHING: safe if truncate was skipped (MARK_RAN)
+  # and locations already have data.
+  - changeSet:
+      id: state-2-reseed-locations
+      author: bbqbookkeeper
+      context: "bad or good"
+      runAlways: true
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO locations (name, city) VALUES
+                ('Seattle','Seattle'),
+                ('Portland','Portland'),
+                ('San Francisco','San Francisco'),
+                ('Austin','Austin'),
+                ('Nashville','Nashville'),
+                ('Chicago','Chicago'),
+                ('Dallas','Dallas'),
+                ('Miami','Miami'),
+                ('Denver','Denver'),
+                ('Phoenix','Phoenix')
+              ON CONFLICT (name) DO NOTHING;
+  # ── Drop constraints ─────────────────────────────────────────────────────────
+  # IF EXISTS makes this safe on fresh tables with no constraints yet.
+  - changeSet:
+      id: state-3-drop-constraints
+      author: bbqbookkeeper
+      context: "bad or good"
+      runAlways: true
+      preConditions:
+        - onFail: MARK_RAN
+          tableExists:
+            tableName: inventory
+      changes:
+        - sql:
+            sql: |
+              ALTER TABLE inventory DROP CONSTRAINT IF EXISTS inventory_name_location_key;
+              ALTER TABLE suppliers DROP CONSTRAINT IF EXISTS suppliers_name_location_key;
+  # ── BAD state ────────────────────────────────────────────────────────────────
+  - changeSet:
+      id: bad-1-drop-indexes
+      author: bbqbookkeeper
+      context: "bad"
+      runAlways: true
+      comment: "BAD: drop all functional indexes — forces sequential scans on LOWER() join columns"
+      changes:
+        - sql:
+            sql: |
+              DROP INDEX IF EXISTS idx_inventory_location_lower;
+              DROP INDEX IF EXISTS idx_suppliers_location_lower;
+              DROP INDEX IF EXISTS idx_suppliers_item_lower;
+  - changeSet:
+      id: bad-2-seed-inventory
+      author: bbqbookkeeper
+      context: "bad"
+      runAlways: true
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO inventory (name, quantity, unit, location) VALUES
+                ('Brisket',50,'lbs','Seattle'),('Pulled Pork',30,'lbs','Seattle'),
+                ('Baby Back Ribs',20,'racks','Seattle'),('Sausage Links',60,'links','Seattle'),
+                ('Chicken Wings',100,'pieces','Seattle'),('Smoked Turkey',15,'lbs','Seattle'),
+                ('Burnt Ends',25,'lbs','Seattle'),('Pork Belly',18,'lbs','Seattle'),
+                ('Brisket',40,'lbs','Portland'),('Sausage Links',60,'links','Portland'),
+                ('Pulled Pork',35,'lbs','Portland'),('Baby Back Ribs',22,'racks','Portland'),
+                ('Chicken Wings',80,'pieces','Portland'),('Smoked Salmon',12,'lbs','Portland'),
+                ('Brisket',45,'lbs','Austin'),('Jalapeño Sausage',35,'links','Austin'),
+                ('Pulled Pork',28,'lbs','Austin'),('Beef Ribs',16,'racks','Austin'),
+                ('Chicken Wings',90,'pieces','Austin'),('Smoked Turkey',20,'lbs','Austin'),
+                ('Pulled Pork',25,'lbs','Nashville'),('Smoked Turkey',15,'lbs','Nashville'),
+                ('Baby Back Ribs',18,'racks','Nashville'),('Brisket',38,'lbs','Nashville'),
+                ('Hot Chicken',50,'pieces','Nashville'),
+                ('Chicken Wings',100,'pieces','San Francisco'),('Pulled Pork',20,'lbs','San Francisco'),
+                ('Brisket',30,'lbs','San Francisco'),('Sausage Links',40,'links','San Francisco'),
+                ('Brisket',55,'lbs','Chicago'),('Italian Sausage',70,'links','Chicago'),
+                ('Pulled Pork',32,'lbs','Chicago'),('Baby Back Ribs',24,'racks','Chicago'),
+                ('Chicken Wings',95,'pieces','Chicago'),
+                ('Brisket',48,'lbs','Dallas'),('Jalapeño Sausage',40,'links','Dallas'),
+                ('Beef Ribs',20,'racks','Dallas'),('Pulled Pork',30,'lbs','Dallas'),
+                ('Chicken Wings',85,'pieces','Dallas'),
+                ('Brisket',42,'lbs','Miami'),('Pulled Pork',28,'lbs','Miami'),
+                ('Chicken Wings',75,'pieces','Miami'),('Smoked Turkey',18,'lbs','Miami'),
+                ('Brisket',50,'lbs','Denver'),('Pulled Pork',26,'lbs','Denver'),
+                ('Baby Back Ribs',20,'racks','Denver'),('Smoked Turkey',14,'lbs','Denver'),
+                ('Brisket',44,'lbs','Phoenix'),('Pulled Pork',24,'lbs','Phoenix'),
+                ('Jalapeño Sausage',38,'links','Phoenix'),('Chicken Wings',88,'pieces','Phoenix');
+  - changeSet:
+      id: bad-3-bulk-inventory
+      author: bbqbookkeeper
+      context: "bad"
+      runAlways: true
+      comment: "50,000 random rows — makes sequential scan genuinely expensive"
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO inventory (name, quantity, unit, location)
+              SELECT
+                (ARRAY['Brisket','Pulled Pork','Chicken Wings','Beef Ribs','Sausage Links',
+                       'Smoked Turkey','Burnt Ends','Pork Belly','Hot Chicken','Jalapeño Sausage'])
+                    [floor(random()*10+1)],
+                floor(random()*100+1)::int,
+                (ARRAY['lbs','racks','links','pieces'])
+                    [floor(random()*4+1)],
+                (ARRAY['Seattle','Portland','Austin','Nashville','San Francisco',
+                       'Chicago','Dallas','Miami','Denver','Phoenix'])
+                    [floor(random()*10+1)]
+              FROM generate_series(1, 50000);
+  - changeSet:
+      id: bad-4-seed-suppliers
+      author: bbqbookkeeper
+      context: "bad"
+      runAlways: true
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO suppliers (name, location, item, lead_days) VALUES
+                ('Pacific Meats Co','Seattle','Brisket',3),
+                ('Pacific Meats Co','Seattle','Pulled Pork',2),
+                ('Pacific Meats Co','Seattle','Baby Back Ribs',4),
+                ('Northwest Smoke','Seattle','Sausage Links',1),
+                ('Northwest Smoke','Seattle','Chicken Wings',1),
+                ('Cascade Farms','Portland','Brisket',3),
+                ('Cascade Farms','Portland','Pulled Pork',2),
+                ('Willamette Meats','Portland','Smoked Salmon',5),
+                ('Texas Prime','Austin','Brisket',2),
+                ('Texas Prime','Austin','Jalapeño Sausage',1),
+                ('Texas Prime','Austin','Beef Ribs',3),
+                ('Lone Star Supply','Dallas','Brisket',2),
+                ('Lone Star Supply','Dallas','Beef Ribs',3),
+                ('Music City Meats','Nashville','Pulled Pork',2),
+                ('Music City Meats','Nashville','Hot Chicken',1),
+                ('Bay Area Foods','San Francisco','Chicken Wings',2),
+                ('Windy City Meats','Chicago','Brisket',3),
+                ('Windy City Meats','Chicago','Italian Sausage',1),
+                ('Miami Meats','Miami','Brisket',4),
+                ('Rocky Mountain Supply','Denver','Brisket',3),
+                ('Desert Supply Co','Phoenix','Jalapeño Sausage',2);
+  - changeSet:
+      id: bad-5-bulk-suppliers
+      author: bbqbookkeeper
+      context: "bad"
+      runAlways: true
+      comment: "50,000 random supplier rows — amplifies join cost with no indexes"
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO suppliers (name, location, item, lead_days)
+              SELECT
+                (ARRAY['Pacific Meats Co','Cascade Farms','Texas Prime','Lone Star Supply',
+                       'Music City Meats','Bay Area Foods','Windy City Meats','Miami Meats',
+                       'Rocky Mountain Supply','Desert Supply Co'])
+                    [floor(random()*10+1)],
+                (ARRAY['Seattle','Portland','Austin','Nashville','San Francisco',
+                       'Chicago','Dallas','Miami','Denver','Phoenix'])
+                    [floor(random()*10+1)],
+                (ARRAY['Brisket','Pulled Pork','Chicken Wings','Beef Ribs','Sausage Links',
+                       'Smoked Turkey','Burnt Ends','Pork Belly','Hot Chicken','Jalapeño Sausage'])
+                    [floor(random()*10+1)],
+                floor(random()*7+1)::int
+              FROM generate_series(1, 50000);
+  # ── GOOD state ───────────────────────────────────────────────────────────────
+  - changeSet:
+      id: good-1-create-indexes
+      author: bbqbookkeeper
+      context: "good"
+      runAlways: true
+      comment: "THE FIX: functional indexes on all LOWER() join columns"
+      preConditions:
+        - onFail: MARK_RAN
+          tableExists:
+            tableName: inventory
+      changes:
+        - sql:
+            sql: |
+              DROP INDEX IF EXISTS idx_inventory_location_lower;
+              DROP INDEX IF EXISTS idx_suppliers_location_lower;
+              DROP INDEX IF EXISTS idx_suppliers_item_lower;
+              CREATE INDEX idx_inventory_location_lower ON inventory (LOWER(location));
+              CREATE INDEX idx_suppliers_location_lower ON suppliers (LOWER(location));
+              CREATE INDEX idx_suppliers_item_lower ON suppliers (LOWER(item));
+  - changeSet:
+      id: good-2-seed-inventory
+      author: bbqbookkeeper
+      context: "good"
+      runAlways: true
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO inventory (name, quantity, unit, location) VALUES
+                ('Brisket',50,'lbs','Seattle'),('Pulled Pork',30,'lbs','Seattle'),
+                ('Baby Back Ribs',20,'racks','Seattle'),('Sausage Links',60,'links','Seattle'),
+                ('Chicken Wings',100,'pieces','Seattle'),('Smoked Turkey',15,'lbs','Seattle'),
+                ('Burnt Ends',25,'lbs','Seattle'),('Pork Belly',18,'lbs','Seattle'),
+                ('Brisket',40,'lbs','Portland'),('Sausage Links',60,'links','Portland'),
+                ('Pulled Pork',35,'lbs','Portland'),('Baby Back Ribs',22,'racks','Portland'),
+                ('Chicken Wings',80,'pieces','Portland'),('Smoked Salmon',12,'lbs','Portland'),
+                ('Brisket',45,'lbs','Austin'),('Jalapeño Sausage',35,'links','Austin'),
+                ('Pulled Pork',28,'lbs','Austin'),('Beef Ribs',16,'racks','Austin'),
+                ('Chicken Wings',90,'pieces','Austin'),('Smoked Turkey',20,'lbs','Austin'),
+                ('Pulled Pork',25,'lbs','Nashville'),('Smoked Turkey',15,'lbs','Nashville'),
+                ('Baby Back Ribs',18,'racks','Nashville'),('Brisket',38,'lbs','Nashville'),
+                ('Hot Chicken',50,'pieces','Nashville'),
+                ('Chicken Wings',100,'pieces','San Francisco'),('Pulled Pork',20,'lbs','San Francisco'),
+                ('Brisket',30,'lbs','San Francisco'),('Sausage Links',40,'links','San Francisco'),
+                ('Brisket',55,'lbs','Chicago'),('Italian Sausage',70,'links','Chicago'),
+                ('Pulled Pork',32,'lbs','Chicago'),('Baby Back Ribs',24,'racks','Chicago'),
+                ('Chicken Wings',95,'pieces','Chicago'),
+                ('Brisket',48,'lbs','Dallas'),('Jalapeño Sausage',40,'links','Dallas'),
+                ('Beef Ribs',20,'racks','Dallas'),('Pulled Pork',30,'lbs','Dallas'),
+                ('Chicken Wings',85,'pieces','Dallas'),
+                ('Brisket',42,'lbs','Miami'),('Pulled Pork',28,'lbs','Miami'),
+                ('Chicken Wings',75,'pieces','Miami'),('Smoked Turkey',18,'lbs','Miami'),
+                ('Brisket',50,'lbs','Denver'),('Pulled Pork',26,'lbs','Denver'),
+                ('Baby Back Ribs',20,'racks','Denver'),('Smoked Turkey',14,'lbs','Denver'),
+                ('Brisket',44,'lbs','Phoenix'),('Pulled Pork',24,'lbs','Phoenix'),
+                ('Jalapeño Sausage',38,'links','Phoenix'),('Chicken Wings',88,'pieces','Phoenix');
+  - changeSet:
+      id: good-3-bulk-inventory
+      author: bbqbookkeeper
+      context: "good"
+      runAlways: true
+      comment: "10,000 rows — index scan is fast even at this volume, proving index is the fix"
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO inventory (name, quantity, unit, location)
+              SELECT
+                (ARRAY['Brisket','Pulled Pork','Chicken Wings','Beef Ribs','Sausage Links',
+                       'Smoked Turkey','Burnt Ends','Pork Belly','Hot Chicken','Jalapeño Sausage'])
+                    [floor(random()*10+1)],
+                floor(random()*100+1)::int,
+                (ARRAY['lbs','racks','links','pieces'])
+                    [floor(random()*4+1)],
+                (ARRAY['Seattle','Portland','Austin','Nashville','San Francisco',
+                       'Chicago','Dallas','Miami','Denver','Phoenix'])
+                    [floor(random()*10+1)]
+              FROM generate_series(1, 10000);
+  - changeSet:
+      id: good-4-seed-suppliers
+      author: bbqbookkeeper
+      context: "good"
+      runAlways: true
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO suppliers (name, location, item, lead_days) VALUES
+                ('Pacific Meats Co','Seattle','Brisket',3),
+                ('Pacific Meats Co','Seattle','Pulled Pork',2),
+                ('Pacific Meats Co','Seattle','Baby Back Ribs',4),
+                ('Northwest Smoke','Seattle','Sausage Links',1),
+                ('Northwest Smoke','Seattle','Chicken Wings',1),
+                ('Cascade Farms','Portland','Brisket',3),
+                ('Cascade Farms','Portland','Pulled Pork',2),
+                ('Willamette Meats','Portland','Smoked Salmon',5),
+                ('Texas Prime','Austin','Brisket',2),
+                ('Texas Prime','Austin','Jalapeño Sausage',1),
+                ('Texas Prime','Austin','Beef Ribs',3),
+                ('Lone Star Supply','Dallas','Brisket',2),
+                ('Lone Star Supply','Dallas','Beef Ribs',3),
+                ('Music City Meats','Nashville','Pulled Pork',2),
+                ('Music City Meats','Nashville','Hot Chicken',1),
+                ('Bay Area Foods','San Francisco','Chicken Wings',2),
+                ('Windy City Meats','Chicago','Brisket',3),
+                ('Windy City Meats','Chicago','Italian Sausage',1),
+                ('Miami Meats','Miami','Brisket',4),
+                ('Rocky Mountain Supply','Denver','Brisket',3),
+                ('Desert Supply Co','Phoenix','Jalapeño Sausage',2);
+  - changeSet:
+      id: good-5-bulk-suppliers
+      author: bbqbookkeeper
+      context: "good"
+      runAlways: true
+      comment: "10,000 supplier rows — index scan handles this efficiently"
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO suppliers (name, location, item, lead_days)
+              SELECT
+                (ARRAY['Pacific Meats Co','Cascade Farms','Texas Prime','Lone Star Supply',
+                       'Music City Meats','Bay Area Foods','Windy City Meats','Miami Meats',
+                       'Rocky Mountain Supply','Desert Supply Co'])
+                    [floor(random()*10+1)],
+                (ARRAY['Seattle','Portland','Austin','Nashville','San Francisco',
+                       'Chicago','Dallas','Miami','Denver','Phoenix'])
+                    [floor(random()*10+1)],
+                (ARRAY['Brisket','Pulled Pork','Chicken Wings','Beef Ribs','Sausage Links',
+                       'Smoked Turkey','Burnt Ends','Pork Belly','Hot Chicken','Jalapeño Sausage'])
+                    [floor(random()*10+1)],
+                floor(random()*7+1)::int
+              FROM generate_series(1, 10000);
+  - changeSet:
+      id: good-6-dedup-suppliers
+      author: bbqbookkeeper
+      context: "good"
+      runAlways: true
+      comment: "Deduplicate suppliers — one row per location+item to prevent JOIN fanout"
+      changes:
+        - sql:
+            sql: |-
+              DELETE FROM suppliers
+              WHERE id NOT IN (
+                SELECT MIN(id) FROM suppliers
+                GROUP BY location, item
+              );
+  - changeSet:
+      id: add-idx-lower-location-suppliers
+      author: Animesh Pathak
+      context: "good"
+      comment: Create functional index on LOWER(location) for suppliers table to improve case-insensitive query performance as recommended by DBmarlin
+      labels: dbmarlin-recommendation
+      changes:
+        - createIndex:
+            indexName: idx_lower_location
+            tableName: suppliers
+            columns:
+              - column:
+                  name: LOWER(location)
+                  computed: true
+      rollback:
+        - dropIndex:
+            indexName: idx_lower_location
+            tableName: suppliers
+  - changeSet:
+      id: add-idx-lower-item-suppliers
+      author: Animesh Pathak
+      context: "good"
+      comment: Create functional index on LOWER(item) for suppliers table to improve case-insensitive query performance as recommended by DBmarlin
+      labels: dbmarlin-recommendation
+      changes:
+        - createIndex:
+            indexName: idx_lower_item
+            tableName: suppliers
+            columns:
+              - column:
+                  name: LOWER(item)
+                  computed: true
+      rollback:
+        - dropIndex:
+            indexName: idx_lower_item
+            tableName: suppliers
+  - changeSet:
+      id: create-idx-suppliers-location
+      author: Animesh Pathak
+      context: "good"
+      comment: Create standard B-tree functional index on LOWER(location) for case-insensitive queries
+      labels: "optimization,index"
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: suppliers
+      changes:
+        - sql:
+            sql: CREATE INDEX idx_suppliers_location ON suppliers(LOWER(location));
+      rollback:
+        - sql:
+            sql: DROP INDEX IF EXISTS idx_suppliers_location;
+  - changeSet:
+      id: create-idx-suppliers-item
+      author: Animesh Pathak
+      context: "good"
+      comment: Create standard B-tree functional index on LOWER(item) for case-insensitive queries
+      labels: "optimization,index"
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: suppliers
+      changes:
+        - sql:
+            sql: CREATE INDEX idx_suppliers_item ON suppliers(LOWER(item));
+      rollback:
+        - sql:
+            sql: DROP INDEX IF EXISTS idx_suppliers_item;
