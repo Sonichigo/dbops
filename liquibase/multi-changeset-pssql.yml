@@ -1,11 +1,4 @@
 databaseChangeLog:
-
-  # ══════════════════════════════════════════════════════════════
-  # ORIGINAL CHANGESETS — DO NOT MODIFY
-  # These are already recorded in DATABASECHANGELOG.
-  # Altering them will break checksum validation.
-  # ══════════════════════════════════════════════════════════════
-
   - changeSet:
       id: product-table-v2
       author: sonichigo
@@ -256,16 +249,6 @@ databaseChangeLog:
             tableName: product
             where: name in ('Enterprise Docking Station', '4K Webcam with Auto-Focus', 'Noise-Cancelling Conference Microphone', 'Ergonomic Mechanical Keyboard', 'Professional Monitor Stand')
 
-  # ══════════════════════════════════════════════════════════════
-  # NEW CHANGESETS v3 — safe to apply on top of production
-  # Uses addColumn (non-destructive) and fresh inserts only.
-  # ══════════════════════════════════════════════════════════════
-
-  # ──────────────────────────────────────────────────────────────
-  # Changeset v3-1: Expand product table with new columns
-  # addColumn is non-destructive — existing rows gain NULLs
-  # then UPDATE fills them in safely.
-  # ──────────────────────────────────────────────────────────────
   - changeSet:
       id: product-table-v3
       author: sonichigo
@@ -341,10 +324,6 @@ databaseChangeLog:
             tableName: product
             columnName: updated_at
 
-  # ──────────────────────────────────────────────────────────────
-  # Changeset v3-2: Backfill new columns on existing rows
-  # Sets sku, category, stock_quantity for all pre-existing data.
-  # ──────────────────────────────────────────────────────────────
   - changeSet:
       id: product-backfill-v3
       author: sonichigo
@@ -364,10 +343,6 @@ databaseChangeLog:
               UPDATE product SET sku = NULL, category = NULL
               WHERE sku LIKE 'LEGACY-%';
 
-  # ──────────────────────────────────────────────────────────────
-  # Changeset v3-3: Add unique constraint on sku
-  # Done after backfill so no NULL/duplicate conflicts.
-  # ──────────────────────────────────────────────────────────────
   - changeSet:
       id: product-sku-unique-constraint-v3
       author: sonichigo
@@ -383,9 +358,6 @@ databaseChangeLog:
             tableName: product
             constraintName: uq_product_sku
 
-  # ──────────────────────────────────────────────────────────────
-  # Changeset v3-4: New indexes for added columns
-  # ──────────────────────────────────────────────────────────────
   - changeSet:
       id: product-table-indexes-v3
       author: sonichigo
@@ -421,9 +393,6 @@ databaseChangeLog:
             indexName: idx_products_is_available
             tableName: product
 
-  # ──────────────────────────────────────────────────────────────
-  # Changeset v3-5: Dev/Staging/QA — new sample rows (full columns)
-  # ──────────────────────────────────────────────────────────────
   - changeSet:
       id: product-sample-data-initial-v3
       author: sonichigo
@@ -580,9 +549,6 @@ databaseChangeLog:
             tableName: product
             where: sku in ('ELEC-WBH-001','CABL-UCC-002','ACCS-SMC-003','ELEC-PPB-004','ACCS-WMP-005','ACCS-ELS-006')
 
-  # ──────────────────────────────────────────────────────────────
-  # Changeset v3-6: Production (NA + APJ) — new catalog rows
-  # ──────────────────────────────────────────────────────────────
   - changeSet:
       id: product-production-data-initial-v3
       author: sonichigo
@@ -715,9 +681,6 @@ databaseChangeLog:
             tableName: product
             where: sku in ('PRO-PWH-101','PRO-UCH-102','PRO-BLS-103','PRO-SSD-104','PRO-WPR-105')
 
-  # ──────────────────────────────────────────────────────────────
-  # Changeset v3-7: Production (NA + APJ) — enterprise catalog rows
-  # ──────────────────────────────────────────────────────────────
   - changeSet:
       id: product-production-data-enterprise-v3
       author: sonichigo
